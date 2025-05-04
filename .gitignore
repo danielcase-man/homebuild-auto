@@ -33,6 +33,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Python
+apps/backend/.venv/
+__pycache__/
+
+# Expo/React Native
+apps/mobile/.expo/
+apps/mobile/node_modules/
+
 # Misc
 .DS_Store
+.vscode/
 *.pem
