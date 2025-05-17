@@ -1,14 +1,14 @@
 {
   "servers": {
     "filesystem": {
-      "command": "npx",
+      "command": "C:\\Users\\danie\\AppData\\Roaming\\npm\\npx.cmd",
       "args": [
         "@modelcontextprotocol/server-filesystem",
         "c:/Users/danie/Dropbox/Properties/Austin, TX/Liberty Hill/708 Purple Salvia Cove/Estimates/Windows and Doors"
       ]
     },
     "firecrawl": {
-      "command": "npx",
+      "command": "C:\\Users\\danie\\AppData\\Roaming\\npm\\npx.cmd",
       "args": [
         "firecrawl-mcp"
       ],
@@ -17,13 +17,13 @@
       }
     },
     "github": {
-      "command": "npx",
+      "command": "C:\\Users\\danie\\AppData\\Roaming\\npm\\npx.cmd",
       "args": [
         "@modelcontextprotocol/server-github"
       ]
     },
     "sequential-thinking": {
-      "command": "npx",
+      "command": "C:\\Users\\danie\\AppData\\Roaming\\npm\\npx.cmd",
       "args": [
         "@modelcontextprotocol/server-sequential-thinking"
       ]
