@@ -1,0 +1,53 @@
+# Environment and secrets
+.env
+.env.*
+mailer-key.json
+*.pem
+*.key
+*.p12
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory
+coverage/
+
+# Testing
+.nyc_output/
+
+# Dependency directories
+jspm_packages/
+
+# Build output
+dist/
+build/
+out/
+
+# IDE and editor files
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.sublime-workspace
+*.sublime-project
+.DS_Store
+._*
+
+# Temp files
+.tmp/
+.temp/

@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: homebuild-backend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - SA_KEY_PATH=/app/mailer-key.json
+      - DELEGATED_ADMIN_EMAIL=${DELEGATED_ADMIN_EMAIL}
+    volumes:
+      - ../backend/mailer-key.json:/app/mailer-key.json:ro
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Add more services like frontend, database, etc. as needed
