@@ -1,13 +1,16 @@
 name: CI/CD Pipeline
 
 on:
+  pull_request:
+    branches: [ main, master ]
   push:
     branches: [ main, master ]
 
 jobs:
-  deploy:
-    name: Build and Deploy
+  terraform-plan:
+    name: Terraform Plan
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     
     steps:
       - name: Checkout code
@@ -24,6 +27,53 @@ jobs:
           tags: toolbox:latest
           load: true
           push: false
+      
+      - name: Run Terraform Plan
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/app \
+            -e AWS_ACCESS_KEY_ID \
+            -e AWS_SECRET_ACCESS_KEY \
+            -e AWS_REGION \
+            toolbox:latest bash -c "cd /app && pip3 install cline-cli && cline install tool-terraform && chmod +x ./infra-plan.sh && ./infra-plan.sh"
+
+  deploy:
+    name: Build, Deploy and Apply Infrastructure
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Build toolbox image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile.toolbox
+          tags: toolbox:latest
+          load: true
+          push: false
+      
+      - name: Run Terraform Apply
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/app \
+            -e AWS_ACCESS_KEY_ID \
+            -e AWS_SECRET_ACCESS_KEY \
+            -e AWS_REGION \
+            toolbox:latest bash -c "cd /app && pip3 install cline-cli && cline install tool-terraform && chmod +x ./infra-plan.sh && ./infra-plan.sh && chmod +x ./infra-apply.sh && ./infra-apply.sh"
       
       - name: Run deployment script in container
         env:

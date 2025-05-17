@@ -78,6 +78,52 @@
       "options": {
         "cwd": "${workspaceFolder}"
       }
+    },
+    {
+      "label": "Terraform Plan",
+      "type": "shell",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "windows": {
+        "command": "docker run --rm -it -v \"${workspaceFolder}:/app\" toolbox:latest bash -c \"cd /app && chmod +x ./infra-plan.sh && ./infra-plan.sh\""
+      },
+      "linux": {
+        "command": "chmod +x ./infra-plan.sh && ./infra-plan.sh"
+      },
+      "osx": {
+        "command": "chmod +x ./infra-plan.sh && ./infra-plan.sh"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "Terraform Apply",
+      "type": "shell",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "windows": {
+        "command": "docker run --rm -it -v \"${workspaceFolder}:/app\" toolbox:latest bash -c \"cd /app && chmod +x ./infra-apply.sh && ./infra-apply.sh\""
+      },
+      "linux": {
+        "command": "chmod +x ./infra-apply.sh && ./infra-apply.sh"
+      },
+      "osx": {
+        "command": "chmod +x ./infra-apply.sh && ./infra-apply.sh"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
     }
   ]
 }

@@ -22,5 +22,17 @@
     "command": "workbench.action.tasks.runTask",
     "args": "Provision AWS Resources",
     "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+alt+t",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Terraform Plan",
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+alt+a",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Terraform Apply",
+    "when": "editorTextFocus"
   }
 ]
