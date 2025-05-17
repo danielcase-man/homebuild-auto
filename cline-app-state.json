@@ -1,0 +1,16 @@
+{
+  "accessKeyId": "",
+  "secretAccessKey": "",
+  "region": "us-east-1",
+  "ecrRepoUri": "",
+  "vpcId": "",
+  "subnetId": "",
+  "securityGroupId": "",
+  "albArn": "",
+  "albDnsName": "",
+  "targetGroupArn": "",
+  "listenerArn": "",
+  "clusterArn": "",
+  "taskDefinitionArn": "",
+  "ecsServiceName": "my-app-service"
+}
