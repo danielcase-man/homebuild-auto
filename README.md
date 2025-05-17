@@ -8,6 +8,7 @@ This repository contains a complete CI/CD pipeline that builds, tests, and deplo
 - **AWS Infrastructure Automation**: Scripts to provision complete AWS infrastructure
 - **GitHub Actions Workflow**: Automated CI/CD pipeline that runs on every push
 - **Cross-Platform Support**: Windows PowerShell and Unix/Linux/macOS bash scripts
+- **VS Code Integration**: Tasks and keybindings for seamless development experience
 
 ## Getting Started
 
@@ -93,6 +94,30 @@ After the workflow completes successfully, verify your deployment:
 - **Check ALB**: In EC2 → Load Balancers, confirm your ALB's DNS is serving traffic
 
 The ALB DNS name is stored in `cline-app-state.json` as `albDnsName`.
+
+## VS Code Integration
+
+This repository includes VS Code tasks and keybindings for faster development:
+
+### Available Tasks
+
+Press `Ctrl+Shift+P` and type "Run Task" to see these options:
+
+- **Cline Build Website**: Runs the complete bootstrapping process via CLine
+- **Configure AWS Credentials**: Sets up your AWS credentials
+- **Run Toolbox Container**: Builds and runs the Docker toolbox
+- **Provision AWS Resources**: Runs the provisioning script in the toolbox
+
+### Keyboard Shortcuts
+
+The following keyboard shortcuts are available:
+
+- `Ctrl+Alt+B`: Run the "Cline Build Website" task
+- `Ctrl+Alt+C`: Run the "Configure AWS Credentials" task
+- `Ctrl+Alt+R`: Run the "Run Toolbox Container" task
+- `Ctrl+Alt+P`: Run the "Provision AWS Resources" task
+
+> Note: These keybindings are defined in `.vscode/keybindings.json` and are specific to this workspace.
 
 ## Infrastructure Components
 

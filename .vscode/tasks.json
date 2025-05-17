@@ -1,0 +1,83 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Cline Build Website",
+      "type": "shell",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "command": "cline << 'EOF'\nYou are CLine, the command-line LLM assistant. I want you to fully bootstrap my cross-platform CI/CD pipeline and AWS hosting environment end-to-end. Perform these steps, echoing each command before execution:\n\n1. **Load AWS credentials** from `./cline-ci-cd_accessKeys` (with lines `AWS_ACCESS_KEY_ID=…` and `AWS_SECRET_ACCESS_KEY=…`):\n   source ./cline-ci-cd_accessKeys\n\n2. **Configure the AWS plugin** to remember those credentials and set defaults:\n   cline install tool-aws\n   cline run tool-aws -- configure set aws_access_key_id   \"$AWS_ACCESS_KEY_ID\"\n   cline run tool-aws -- configure set aws_secret_access_key \"$AWS_SECRET_ACCESS_KEY\"\n   cline run tool-aws -- configure set region us-east-1\n   cline run tool-aws -- configure set output json\n\n3. **Build the toolbox image** for a consistent environment:\n   docker build -t toolbox:latest -f Dockerfile.toolbox .\n\n4. **Generate and commit** the provisioning script `provision-aws.sh` (make it executable) that:\n   - Installs and configures `tool-aws`\n   - Creates the CI/CD IAM user and access keys\n   - Creates the ECR repository\n   - Provisions VPC, subnet, security group, ALB, target group, listener\n   - Creates the ECS cluster, task definition, and Fargate service\n   - Uses one `jq` invocation to write all outputs into `cline-app-state.json`\n   git add provision-aws.sh\n   git commit -m \"Add AWS provisioning script for toolbox container\"\n\n5. **Run** the provisioning inside the toolbox:\n   docker run --rm -v \"$(pwd)\":/app -w /app toolbox:latest sh ./provision-aws.sh\n\n6. **Commit** the generated state file:\n   git add cline-app-state.json\n   git commit -m \"Save AWS infra state for CLine management\"\n\n7. **Ensure** `deploy.sh` exists (or generate it), then:\n   git add deploy.sh\n   git commit -m \"Add deploy.sh for CI/CD\"\n\n8. **Commit** the CI/CD workflow if missing:\n   git add .github/workflows/ci-cd.yml\n   git commit -m \"Add GitHub Actions CI/CD workflow\"\n\n9. **Push** all changes to `origin main`:\n   git push origin main\n\n10. **Echo** final instructions for adding Secrets in GitHub (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, ECR_REPOSITORY) and running:\n   docker run --rm -v \"$(pwd)\":/app -w /app toolbox:latest bash -c \"chmod +x run-toolbox.sh && ./run-toolbox.sh\"\nEOF",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "Configure AWS Credentials",
+      "type": "shell",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "command": "${command:workbench.action.terminal.new}",
+      "windows": {
+        "command": ".\\Configure-AwsKeys.ps1"
+      },
+      "linux": {
+        "command": "chmod +x ./configure-aws-keys.sh && ./configure-aws-keys.sh"
+      },
+      "osx": {
+        "command": "chmod +x ./configure-aws-keys.sh && ./configure-aws-keys.sh"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "Run Toolbox Container",
+      "type": "shell",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "command": "${command:workbench.action.terminal.new}",
+      "windows": {
+        "command": ".\\run-toolbox.ps1"
+      },
+      "linux": {
+        "command": "chmod +x ./run-toolbox.sh && ./run-toolbox.sh"
+      },
+      "osx": {
+        "command": "chmod +x ./run-toolbox.sh && ./run-toolbox.sh"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "Provision AWS Resources",
+      "type": "shell",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "command": "docker run --rm -it -v \"${workspaceFolder}:/app\" toolbox:latest bash -c \"chmod +x ./provision-aws.sh && ./provision-aws.sh\"",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    }
+  ]
+}

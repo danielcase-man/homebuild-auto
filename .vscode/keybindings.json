@@ -1,0 +1,26 @@
+[
+  {
+    "key": "ctrl+alt+b",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Cline Build Website",
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+alt+c",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Configure AWS Credentials",
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+alt+r",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Run Toolbox Container",
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+alt+p",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Provision AWS Resources",
+    "when": "editorTextFocus"
+  }
+]
