@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
   deploy:
@@ -41,4 +41,11 @@ jobs:
             -e AWS_REGION \
             -e ECR_REPOSITORY \
             -e GITHUB_SHA \
-            toolbox:latest ./deploy.sh
+            --entrypoint /bin/bash \
+            toolbox:latest -c "pip3 install cline-cli && \
+                               cline install tool-build && \
+                               cline install tool-test && \
+                               cline install tool-docker && \
+                               cline install tool-aws && \
+                               chmod +x ./deploy.sh && \
+                               ./deploy.sh"
