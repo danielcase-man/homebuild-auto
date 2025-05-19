@@ -10,14 +10,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Install CLine & plugins
+      - name: Install CLine & setup environment
         run: |
+          # Install CLine CLI
           curl -fsSL https://get.cline.dev | bash
-          cline install tool-build local-tool
+          
+          # Add CLine to PATH for this script
+          export PATH=$PATH:$HOME/.cline/bin
+          
+          # Install required plugins
+          cline install tool-build tool-filesystem
+          
+          # Make build script executable
+          chmod +x ./build_and_deploy.sh
+          
+          # Register the build-deploy tool
+          cline mcp install local-tool --exec ./build_and_deploy.sh --name build-deploy
+          
+          # Create the build alias
+          cline config set alias.build "run build-deploy"
+          
+          # Verify installation
+          cline --version
       
-      - name: Build & Deploy via CLine alias
+      - name: Build & Deploy
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-        run: cline build
+        run: |
+          # Make sure to use the full path to cline
+          export PATH=$PATH:$HOME/.cline/bin
+          
+          # Run the build and deploy process
+          cline build
