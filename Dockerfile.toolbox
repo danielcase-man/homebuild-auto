@@ -12,11 +12,13 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     python3 \
     python3-pip \
+    python3-venv \
     unzip \
     wget \
     bash \
     nodejs \
     npm \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Install AWS CLI
@@ -32,36 +34,42 @@ RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /
     apt-get install -y docker-ce-cli && \
     rm -rf /var/lib/apt/lists/*
 
-# Install cline using reliable methods - multiple approaches for redundancy
-# Method 1: Use pip with explicit executable paths
-RUN pip3 install cline-cli && \
-    ln -sf /usr/local/bin/cline /usr/bin/cline
+# Create a virtual environment for CLine
+RUN python3 -m venv /opt/cline-venv && \
+    . /opt/cline-venv/bin/activate && \
+    pip install --no-cache-dir --upgrade pip wheel setuptools && \
+    pip install --no-cache-dir cline-cli
 
-# Method 2: Create a robust bash wrapper
-RUN echo '#!/bin/bash\npython3 -m cline "$@"' > /usr/local/bin/cline-alt && \
-    chmod +x /usr/local/bin/cline-alt
+# Create reliable bin scripts with proper PATH configuration
+RUN echo '#!/bin/bash\n. /opt/cline-venv/bin/activate && python -m cline "$@"' > /usr/local/bin/cline && \
+    chmod +x /usr/local/bin/cline && \
+    echo '#!/bin/bash\n. /opt/cline-venv/bin/activate && pip "$@"' > /usr/local/bin/pip3-cline && \
+    chmod +x /usr/local/bin/pip3-cline
 
-# Verify and create diagnostic info
-RUN echo "Cline Installation Verification:" > /cline-check.txt && \
-    which cline >> /cline-check.txt 2>&1 || echo "cline not in PATH" >> /cline-check.txt && \
-    ls -la /usr/local/bin/ | grep cline >> /cline-check.txt 2>&1 && \
-    python3 -m pip list | grep cline >> /cline-check.txt 2>&1 && \
-    echo "PATH=$PATH" >> /cline-check.txt
+# Verify installation and create diagnostic info
+RUN /usr/local/bin/cline --version > /cline-check.txt 2>&1 || echo "CLine version check failed" >> /cline-check.txt && \
+    echo "Which cline: $(which cline)" >> /cline-check.txt && \
+    echo "PATH: $PATH" >> /cline-check.txt && \
+    ls -la /usr/local/bin/ >> /cline-check.txt && \
+    ls -la /opt/cline-venv/bin/ >> /cline-check.txt
 
 # Set up working directory
 WORKDIR /app
 
-# Add script to ensure Docker socket is available
-RUN echo '#!/bin/sh\n\
-if [ ! -S /var/run/docker.sock ] && [ -S /tmp/docker.sock ]; then\n\
-  ln -sf /tmp/docker.sock /var/run/docker.sock\n\
-fi\n\
-echo "Container startup: cline location: $(which cline 2>/dev/null || echo not found)"\n\
-echo "Container startup: PATH=$PATH"\n\
+# Create entrypoint script
+RUN echo '#!/bin/bash\n\
+echo "Container starting..."\n\
+echo "CLine location: $(which cline 2>/dev/null || echo not found)"\n\
+echo "CLine version: $(/usr/local/bin/cline --version 2>&1 || echo failed)"\n\
+echo "Container PATH: $PATH"\n\
+echo "AWS CLI version: $(aws --version 2>&1 || echo not found)"\n\
+echo "jq version: $(jq --version 2>&1 || echo not found)"\n\
+echo "Running command: $@"\n\
 exec "$@"' > /entrypoint.sh && chmod +x /entrypoint.sh
 
-# Set PATH explicitly to include all likely cline locations
-ENV PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/sbin:$PATH"
+# Set PATH to include all relevant locations
+ENV PATH="/usr/local/bin:/opt/cline-venv/bin:$PATH"
 
+# Default command
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/bin/bash"]

@@ -27,7 +27,8 @@ jobs:
       - name: Build CLine toolbox image
         run: |
           echo "### Building CLine toolbox Docker image ###"
-          docker build -t cline-toolbox:latest -f Dockerfile.toolbox . --no-cache
+          # Use a single build command with --no-cache for reliability
+          docker build --no-cache -t cline-toolbox:latest -f Dockerfile.toolbox .
           docker images
 
       - name: Test CLine in container
@@ -54,10 +55,10 @@ jobs:
 
       - name: Run build and deploy in container with detailed logging
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID || 'dummy-key-for-testing' }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY || 'dummy-secret-for-testing' }}
-          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY || 'dummy-ecr-for-testing' }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           GITHUB_SHA: ${{ github.sha }}
         run: |
           echo "### Running build_and_deploy.sh inside Docker container with DEBUG ###"
@@ -81,7 +82,10 @@ jobs:
           
           chmod +x debug_wrapper.sh
           
-          # Run with detailed logging
+          # Create environment file instead of using process substitution
+          env | grep -v ' \|"' > ci_env.list
+          
+          # Run with detailed logging - execute both scripts inside container
           docker run --rm \
             -v "$(pwd):/app" \
             -w /app \
@@ -90,6 +94,9 @@ jobs:
             -e AWS_REGION \
             -e ECR_REPOSITORY \
             -e GITHUB_SHA \
-            --env-file <(env | grep -v ' \|"') \
+            --env-file ci_env.list \
             cline-toolbox:latest \
-            bash ./debug_wrapper.sh
+            bash -c "chmod +x debug_wrapper.sh build_and_deploy.sh && ./debug_wrapper.sh"
+          
+          # Clean up temp file
+          rm ci_env.list
