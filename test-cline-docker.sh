@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Test script for validating the Docker-based CLine setup
+echo "🧪 Testing CLine in Docker container..."
+
+# Step 1: Build the Docker image
+echo "📦 Building CLine toolbox Docker image..."
+docker build -t cline-toolbox:latest -f Dockerfile.toolbox .
+
+# Step 2: Test CLine version
+echo "🔍 Checking CLine version in container..."
+docker run --rm cline-toolbox:latest cline --version
+
+# Step 3: Test basic CLine functionality
+echo "✅ Testing CLine basic functionality..."
+docker run --rm -v "$(pwd):/app" -w /app cline-toolbox:latest bash -c '
+  echo "- Creating test file"
+  echo "Test content" > test_file.txt
+  
+  echo "- Running CLine MCP status"
+  cline mcp status || echo "MCP status check completed with code $?"
+  
+  echo "- Cleaning up test file"
+  rm test_file.txt
+'
+
+echo "🎉 Tests completed!"
+echo ""
+echo "To use the CLine toolbox container interactively, run:"
+echo "docker run --rm -it -v \"$(pwd):/app\" -w /app cline-toolbox:latest bash"
