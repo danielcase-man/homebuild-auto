@@ -24,6 +24,22 @@ jobs:
           echo "Docker Info:"
           docker info
 
+      - name: Verify AWS credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          echo "### Verifying AWS credentials ###"
+          # Only run if all required secrets are present
+          if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$AWS_REGION" ]; then
+            aws sts get-caller-identity
+            echo "AWS credentials verified successfully"
+          else
+            echo "WARNING: AWS credentials not fully configured - deployment steps will not work"
+            echo "Please configure AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION in GitHub secrets"
+          fi
+
       - name: Build CLine toolbox image
         run: |
           echo "### Building CLine toolbox Docker image ###"
@@ -82,7 +98,7 @@ jobs:
           
           chmod +x debug_wrapper.sh
           
-          # Create environment file instead of using process substitution
+          # Create environment file - exclude single/double quotes
           env | grep -v ' \|"' > ci_env.list
           
           # Run with detailed logging - execute both scripts inside container
