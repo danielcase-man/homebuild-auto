@@ -14,21 +14,74 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Display environment info
+        run: |
+          echo "### Environment Information ###"
+          echo "GitHub Runner OS: $(uname -a)"
+          echo "Working Directory: $(pwd)"
+          echo "Contents:"
+          ls -la
+          echo "Docker Info:"
+          docker info
+
       - name: Build CLine toolbox image
         run: |
-          echo "Building CLine toolbox Docker image..."
-          docker build -t cline-toolbox:latest -f Dockerfile.toolbox .
+          echo "### Building CLine toolbox Docker image ###"
+          docker build -t cline-toolbox:latest -f Dockerfile.toolbox . --no-cache
           docker images
 
-      - name: Run build and deploy in container
+      - name: Test CLine in container
+        run: |
+          echo "### Testing CLine in container ###"
+          docker run --rm cline-toolbox:latest bash -c "which cline || echo 'cline not found'; cline --version || echo 'cline version failed'; env | grep PATH"
+
+      - name: Run simple container command
+        run: |
+          echo "### Testing basic container functionality ###"
+          docker run --rm -v "$(pwd):/app" -w /app cline-toolbox:latest bash -c "echo 'Test from container' > test_output.txt"
+          cat test_output.txt
+          rm test_output.txt
+
+      - name: Print deploy.sh content
+        run: |
+          echo "### Content of deploy.sh ###"
+          cat deploy.sh
+
+      - name: Print build_and_deploy.sh content
+        run: |
+          echo "### Content of build_and_deploy.sh ###"
+          cat build_and_deploy.sh
+
+      - name: Run build and deploy in container with detailed logging
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID || 'dummy-key-for-testing' }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY || 'dummy-secret-for-testing' }}
+          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY || 'dummy-ecr-for-testing' }}
           GITHUB_SHA: ${{ github.sha }}
         run: |
-          echo "Running build_and_deploy.sh inside Docker container..."
+          echo "### Running build_and_deploy.sh inside Docker container with DEBUG ###"
+          
+          # Create a wrapper script with debug output
+          cat > debug_wrapper.sh << 'EOF'
+          #!/bin/bash
+          set -x  # Enable command echo
+          
+          # Verify environment
+          echo "Inside container environment:"
+          env | sort
+          
+          echo "Container working directory: $(pwd)"
+          echo "Container files:"
+          ls -la
+          
+          echo "Running build_and_deploy.sh"
+          bash -x ./build_and_deploy.sh || echo "Script exited with code $?"
+          EOF
+          
+          chmod +x debug_wrapper.sh
+          
+          # Run with detailed logging
           docker run --rm \
             -v "$(pwd):/app" \
             -w /app \
@@ -37,5 +90,6 @@ jobs:
             -e AWS_REGION \
             -e ECR_REPOSITORY \
             -e GITHUB_SHA \
+            --env-file <(env | grep -v ' \|"') \
             cline-toolbox:latest \
-            bash -c "chmod +x ./build_and_deploy.sh && ./build_and_deploy.sh"
+            bash ./debug_wrapper.sh
