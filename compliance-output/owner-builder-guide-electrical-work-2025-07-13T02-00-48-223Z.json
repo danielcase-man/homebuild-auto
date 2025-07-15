@@ -1,0 +1,32 @@
+{
+  "workType": "electrical work",
+  "projectValue": 25000,
+  "timestamp": "2025-07-13T02:00:48.224Z",
+  "preConstruction": [
+    "Verify property boundaries and setbacks",
+    "Obtain building permit from Liberty Hill",
+    "Submit plans for HOA approval (if applicable)"
+  ],
+  "duringConstruction": [
+    "Call for inspections 24 hours in advance",
+    "Ensure all work stops until inspection passes",
+    "Keep permit and approved plans on-site"
+  ],
+  "postConstruction": [
+    "Schedule final inspection",
+    "Obtain certificate of occupancy",
+    "Submit as-built drawings (if required)"
+  ],
+  "commonMistakes": [
+    "Starting work before permit approval",
+    "Missing required inspections",
+    "Not following approved plans"
+  ],
+  "resources": [
+    {
+      "title": "Liberty Hill Building Department",
+      "url": "https://www.libertyhill.org/building",
+      "description": "Official building permits and inspection information"
+    }
+  ]
+}

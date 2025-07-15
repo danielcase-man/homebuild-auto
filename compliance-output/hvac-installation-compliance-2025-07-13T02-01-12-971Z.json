@@ -1,0 +1,64 @@
+{
+  "workType": "hvac installation",
+  "projectValue": 15000,
+  "isOwnerBuilder": true,
+  "hoaRequired": false,
+  "timestamp": "2025-07-13T02:01:12.972Z",
+  "texasRequirements": [
+    {
+      "id": "tx-building-permit",
+      "category": "PERMIT",
+      "requirement": "Texas Building Permit",
+      "description": "Building permit required for new construction and major renovations",
+      "authority": "Local Building Authority",
+      "cost": {
+        "baseAmount": 500
+      }
+    }
+  ],
+  "libertyHillRequirements": [
+    {
+      "type": "Building Permit",
+      "description": "Liberty Hill municipal building permit",
+      "department": "Building & Development Services",
+      "fees": {
+        "baseFee": 200
+      }
+    }
+  ],
+  "workflow": {
+    "workType": "hvac installation",
+    "steps": [
+      {
+        "id": "site-survey",
+        "title": "Obtain Site Survey",
+        "estimatedCost": 800
+      },
+      {
+        "id": "building-plans",
+        "title": "Prepare Building Plans",
+        "estimatedCost": 2000
+      },
+      {
+        "id": "permit-application",
+        "title": "Submit Permit Application",
+        "estimatedCost": 500
+      }
+    ],
+    "totalEstimatedTime": "6-10 weeks",
+    "criticalPath": [
+      "site-survey",
+      "building-plans",
+      "permit-application"
+    ],
+    "ownerBuilderNotes": [
+      "Owner-builder exemption applies to personal residence only",
+      "Must occupy property for minimum 1 year after completion"
+    ]
+  },
+  "estimatedCosts": {
+    "permits": 700,
+    "inspections": 150,
+    "total": 850
+  }
+}

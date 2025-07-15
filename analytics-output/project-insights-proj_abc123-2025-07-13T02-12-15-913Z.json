@@ -1,0 +1,74 @@
+{
+  "projectId": "proj_abc123",
+  "timestamp": "2025-07-13T02:12:15.913Z",
+  "insights": [
+    {
+      "id": "budget-forecast-1",
+      "type": "BUDGET_FORECAST",
+      "priority": "MEDIUM",
+      "title": "Budget Overrun Risk Detected",
+      "description": "Current spending trend indicates potential 8% budget overrun",
+      "confidence": 0.75,
+      "impact": {
+        "financial": 28000,
+        "timeline": 0,
+        "quality": 0
+      },
+      "recommendations": [
+        "Review material costs for optimization opportunities",
+        "Negotiate better rates with current suppliers",
+        "Consider alternative materials for non-critical components"
+      ]
+    },
+    {
+      "id": "weather-impact-1",
+      "type": "WEATHER_IMPACT",
+      "priority": "HIGH",
+      "title": "Weather Delays Expected",
+      "description": "Heavy rain forecast for next 3 days will impact outdoor work",
+      "confidence": 0.9,
+      "impact": {
+        "financial": 5000,
+        "timeline": 3,
+        "quality": 2
+      },
+      "recommendations": [
+        "Move indoor work to priority",
+        "Secure materials and equipment",
+        "Prepare covered work areas"
+      ]
+    }
+  ],
+  "weatherForecast": [
+    {
+      "date": "2025-07-13T02:12:15.912Z",
+      "condition": "rainy",
+      "workability": "poor"
+    },
+    {
+      "date": "2025-07-14T02:12:15.912Z",
+      "condition": "sunny",
+      "workability": "excellent"
+    }
+  ],
+  "budgetForecast": {
+    "projectedTotal": 378000,
+    "varianceFromBudget": 28000,
+    "costSavingOpportunities": [
+      {
+        "opportunity": "Bulk material purchase",
+        "savings": 5000,
+        "effort": "low"
+      }
+    ]
+  },
+  "scheduleAnalysis": {
+    "projectedCompletion": "2025-10-03T02:12:15.912Z",
+    "delayProbability": 0.25,
+    "criticalPath": [
+      "Foundation",
+      "Framing",
+      "Electrical Rough-In"
+    ]
+  }
+}

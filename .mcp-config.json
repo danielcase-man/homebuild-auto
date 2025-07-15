@@ -1,0 +1,49 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-filesystem",
+        "."
+      ],
+      "env": {},
+      "description": "File system access for reading/writing design files, components, and assets"
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-puppeteer"
+      ],
+      "env": {},
+      "description": "Browser automation for screenshots, UI testing, and design validation"
+    },
+    "web-search": {
+      "command": "npx",
+      "args": [
+        "web-search-mcp"
+      ],
+      "env": {
+        "SEARCH_API_KEY": ""
+      },
+      "description": "Web search for design inspiration, trends, and research"
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": ""
+      },
+      "description": "Access to GitHub repositories for component library research and code examples"
+    },
+    "browser-automation": {
+      "command": "npx",
+      "args": [
+        "browser-automation-mcp"
+      ],
+      "env": {},
+      "description": "Browser automation for accessibility testing, performance monitoring, and UI validation"
+    }
+  }
+}

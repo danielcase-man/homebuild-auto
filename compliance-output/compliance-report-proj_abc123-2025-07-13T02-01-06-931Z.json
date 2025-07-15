@@ -1,0 +1,47 @@
+{
+  "projectInfo": {
+    "permitNumber": "LH-2024-0123",
+    "status": "ISSUED",
+    "compliance": "COMPLIANT"
+  },
+  "inspectionSummary": {
+    "completed": 3,
+    "pending": 2,
+    "failed": 0
+  },
+  "outstandingIssues": [],
+  "recommendations": [
+    "Schedule remaining inspections promptly",
+    "Ensure all required documents are submitted"
+  ],
+  "contactsNeeded": [
+    {
+      "department": "Building & Development Services",
+      "name": "Sarah Wilson",
+      "title": "Building Official",
+      "phone": "(512) 515-5100",
+      "email": "building@libertyhill.org",
+      "office": "111 W San Antonio St, Liberty Hill, TX 78642",
+      "hours": "Mon-Fri 8:00 AM - 5:00 PM",
+      "services": [
+        "Building permits",
+        "Plan review",
+        "Code enforcement"
+      ]
+    },
+    {
+      "department": "Inspections",
+      "name": "Mike Johnson",
+      "title": "Senior Building Inspector",
+      "phone": "(512) 515-5100 ext. 234",
+      "email": "inspections@libertyhill.org",
+      "office": "111 W San Antonio St, Liberty Hill, TX 78642",
+      "hours": "Mon-Fri 7:00 AM - 4:00 PM",
+      "services": [
+        "Building inspections",
+        "Code compliance",
+        "Final approvals"
+      ]
+    }
+  ]
+}

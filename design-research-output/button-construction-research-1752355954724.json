@@ -1,0 +1,173 @@
+{
+  "component": "button",
+  "industry": "construction",
+  "timestamp": "2025-07-12T21:32:34.723Z",
+  "patterns": [
+    {
+      "name": "Construction Action Button",
+      "description": "Bold, high-contrast button with clear call-to-action",
+      "implementation": {
+        "css": "bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-colors",
+        "usage": "Primary actions like \"Start Project\", \"Generate Quote\", \"Submit\""
+      },
+      "accessibility": [
+        "High contrast ratio 7:1",
+        "Minimum 44px touch target",
+        "Focus indicators"
+      ]
+    },
+    {
+      "name": "Secondary Tool Button",
+      "description": "Subtle button for secondary actions",
+      "implementation": {
+        "css": "bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded border",
+        "usage": "Secondary actions like \"Cancel\", \"View Details\", \"Export\""
+      },
+      "accessibility": [
+        "Adequate contrast",
+        "Clear visual hierarchy"
+      ]
+    }
+  ],
+  "colorSchemes": [
+    {
+      "name": "Professional Construction",
+      "primary": "#1e40af",
+      "secondary": "#ea580c",
+      "accent": "#059669",
+      "neutral": [
+        "#111827",
+        "#374151",
+        "#6b7280",
+        "#9ca3af",
+        "#e5e7eb"
+      ],
+      "semantic": {
+        "success": "#10b981",
+        "warning": "#f59e0b",
+        "error": "#ef4444",
+        "info": "#06b6d4"
+      },
+      "psychology": "Trust, reliability, professionalism, action-oriented",
+      "accessibility": "All colors meet WCAG AA contrast requirements"
+    },
+    {
+      "name": "Modern Construction Tech",
+      "primary": "#2563eb",
+      "secondary": "#f97316",
+      "accent": "#8b5cf6",
+      "neutral": [
+        "#0f172a",
+        "#1e293b",
+        "#475569",
+        "#94a3b8",
+        "#f1f5f9"
+      ],
+      "semantic": {
+        "success": "#22c55e",
+        "warning": "#eab308",
+        "error": "#dc2626",
+        "info": "#0ea5e9"
+      },
+      "psychology": "Innovation, technology, efficiency, modern approach",
+      "accessibility": "Enhanced contrast for outdoor viewing conditions"
+    }
+  ],
+  "typography": {
+    "primary": {
+      "font": "Inter",
+      "reasoning": "Excellent readability, professional appearance, great for data-heavy interfaces",
+      "weights": [
+        "400",
+        "500",
+        "600",
+        "700"
+      ],
+      "scales": {
+        "mobile": {
+          "base": "16px",
+          "scale": "1.25"
+        },
+        "desktop": {
+          "base": "16px",
+          "scale": "1.333"
+        }
+      }
+    },
+    "secondary": {
+      "font": "system-ui",
+      "reasoning": "Fallback for performance, native feel",
+      "usage": "Body text, form inputs"
+    },
+    "display": {
+      "font": "Cal Sans",
+      "reasoning": "Modern, friendly headlines that stand out",
+      "usage": "Hero text, page titles"
+    },
+    "monospace": {
+      "font": "JetBrains Mono",
+      "reasoning": "Technical data, measurements, code snippets",
+      "usage": "Measurements, technical specifications, data tables"
+    },
+    "accessibility": [
+      "Minimum 16px base font size",
+      "Line height 1.5 for body text",
+      "Adequate letter spacing for readability",
+      "High contrast ratios"
+    ]
+  },
+  "accessibility": [
+    "Minimum 44px touch target size",
+    "High contrast ratio (4.5:1 minimum)",
+    "Clear focus indicators",
+    "Descriptive button text or aria-label",
+    "Keyboard accessible (Enter/Space)",
+    "Loading state announcements"
+  ],
+  "competitors": [
+    {
+      "company": "Procore",
+      "strength": "Excellent mobile-first design, clear information hierarchy",
+      "weakness": "Can be overwhelming for new users",
+      "pattern": "Card-based layout with consistent spacing"
+    },
+    {
+      "company": "Buildertrend",
+      "strength": "User-friendly interface, good use of colors",
+      "weakness": "Some accessibility issues in forms",
+      "pattern": "Traditional web app layout with clear navigation"
+    },
+    {
+      "company": "PlanGrid (Autodesk)",
+      "strength": "Excellent document handling, touch-optimized",
+      "weakness": "Complex feature discovery",
+      "pattern": "Document-centric interface with overlay controls"
+    }
+  ],
+  "trends": [
+    {
+      "trend": "Neumorphism in Construction Apps",
+      "description": "Subtle 3D effects that mimic physical construction materials",
+      "adoption": "Growing for buttons and cards",
+      "recommendation": "Use sparingly for key interactive elements"
+    },
+    {
+      "trend": "Dark Mode Support",
+      "description": "Essential for outdoor work and various lighting conditions",
+      "adoption": "Standard expectation",
+      "recommendation": "Implement with high contrast for outdoor readability"
+    },
+    {
+      "trend": "Voice UI Integration",
+      "description": "Hands-free operation for construction sites",
+      "adoption": "Emerging in mobile apps",
+      "recommendation": "Consider for field data entry and navigation"
+    },
+    {
+      "trend": "Gesture-First Mobile Design",
+      "description": "Swipe gestures for common actions",
+      "adoption": "Standard in modern construction apps",
+      "recommendation": "Implement with clear visual feedback"
+    }
+  ]
+}

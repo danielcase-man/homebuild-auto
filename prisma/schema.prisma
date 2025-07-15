@@ -1,0 +1,1519 @@
+// Home Builder Pro - Comprehensive Database Schema
+// Handles budgeting, scheduling, project management for home construction
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management & Authentication
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String?  @unique
+  name      String
+  role      UserRole @default(EMPLOYEE)
+  phone     String?
+  avatar    String?
+  
+  // Company association
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id])
+  
+  // User permissions and settings
+  permissions Json?
+  settings    Json?
+  
+  // Activity tracking
+  isActive    Boolean @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  projectsManaged  Project[] @relation("ProjectManager")
+  assignedTasks    Task[]
+  timeEntries      TimeEntry[]
+  expenses         Expense[]
+  notifications    Notification[]
+  documents        Document[]
+  
+  @@map("users")
+}
+
+model Company {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  website     String?
+  phone       String?
+  email       String?
+  
+  // Business details
+  license     String?
+  insurance   String?
+  taxId       String?
+  
+  // Address
+  address     Json? // {street, city, state, zip, country}
+  
+  // Settings
+  settings    Json?
+  logo        String?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  users       User[]
+  projects    Project[]
+  clients     Client[]
+  suppliers   Supplier[]
+  templates   ProjectTemplate[]
+  reports     Report[]
+  webhooks    Webhook[]
+  
+  @@map("companies")
+}
+
+// Client Management
+model Client {
+  id        String @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  // Basic information
+  type      ClientType @default(INDIVIDUAL)
+  firstName String?
+  lastName  String?
+  companyName String?
+  email     String
+  phone     String?
+  
+  // Address information
+  address   Json? // Primary address
+  billingAddress Json? // Billing address if different
+  
+  // Financial information
+  creditLimit    Decimal? @db.Decimal(12, 2)
+  paymentTerms   Int? // Days
+  preferredPaymentMethod PaymentMethod?
+  
+  // Relationship status
+  status    ClientStatus @default(ACTIVE)
+  notes     String?
+  tags      String[] // For categorization
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  projects  Project[]
+  invoices  Invoice[]
+  
+  @@map("clients")
+}
+
+// Project Management
+model Project {
+  id          String @id @default(cuid())
+  companyId   String
+  company     Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  // Basic project information
+  name        String
+  description String?
+  type        ProjectType
+  status      ProjectStatus @default(PLANNING)
+  priority    Priority @default(MEDIUM)
+  
+  // Client information
+  clientId    String
+  client      Client @relation(fields: [clientId], references: [id])
+  
+  // Project manager
+  managerId   String
+  manager     User @relation("ProjectManager", fields: [managerId], references: [id])
+  
+  // Project details
+  address     Json // Project site address
+  lotSize     Decimal? @db.Decimal(10, 2) // Square feet/acres
+  homeSize    Decimal? @db.Decimal(10, 2) // Square feet
+  bedrooms    Int?
+  bathrooms   Decimal? @db.Decimal(3, 1)
+  stories     Int?
+  
+  // Timeline
+  estimatedStartDate DateTime?
+  actualStartDate    DateTime?
+  estimatedEndDate   DateTime?
+  actualEndDate      DateTime?
+  
+  // Budget information
+  contractAmount     Decimal? @db.Decimal(12, 2)
+  estimatedCost      Decimal? @db.Decimal(12, 2)
+  actualCost         Decimal? @db.Decimal(12, 2)
+  contingencyPercent Decimal? @db.Decimal(5, 2)
+  
+  // Memory Bank Integration - Complete JSON data from Memory Bank system
+  memoryBankData     Json? // Full Memory Bank JSON structure for backward compatibility
+  
+  // Texas-Specific Fields
+  libertyHillPermitNumber String? // Liberty Hill building permit number
+  hoaApprovalStatus      String? // HOA approval status
+  hoaApprovalDate        DateTime? // Date of HOA approval
+  texasBuilderLicense    String? // Texas builder license number
+  ownerBuilderExemption  Boolean @default(true) // Texas owner-builder exemption
+  
+  // Enhanced Communication Fields
+  projectEmail          String? // Dedicated Gmail account for this project
+  communicationSettings Json? // Email preferences, notification settings
+  
+  // Predictive Analytics Fields
+  completionPrediction   Json? // AI-predicted completion data
+  riskFactors           Json? // Identified risk factors and mitigation
+  performanceMetrics    Json? // Project performance KPIs
+  
+  // Project settings
+  settings    Json?
+  tags        String[]
+  notes       String?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  phases         ProjectPhase[]
+  tasks          Task[]
+  budgetItems    BudgetItem[]
+  materials      MaterialOrder[]
+  timeEntries    TimeEntry[]
+  expenses       Expense[]
+  documents      Document[]
+  inspections    Inspection[]
+  changeOrders   ChangeOrder[]
+  invoices       Invoice[]
+  communications Communication[]
+  decisions      Decision[]
+  issues         Issue[]
+  vendorResearch VendorResearch[]
+  materialSelections MaterialSelection[]
+  rfps           RFP[]
+  metrics        ProjectMetrics?
+  
+  @@map("projects")
+}
+
+model ProjectTemplate {
+  id          String @id @default(cuid())
+  companyId   String
+  company     Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  name        String
+  description String?
+  type        ProjectType
+  
+  // Template data
+  phases      Json // Default phases and tasks
+  budget      Json // Default budget categories
+  timeline    Json // Default timeline
+  settings    Json?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("project_templates")
+}
+
+// Project Phases & Tasks
+model ProjectPhase {
+  id        String @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  name         String
+  description  String?
+  order        Int
+  status       PhaseStatus @default(NOT_STARTED)
+  
+  // Timeline
+  estimatedStartDate DateTime?
+  actualStartDate    DateTime?
+  estimatedEndDate   DateTime?
+  actualEndDate      DateTime?
+  
+  // Budget
+  estimatedCost Decimal? @db.Decimal(12, 2)
+  actualCost    Decimal? @db.Decimal(12, 2)
+  
+  // Dependencies
+  dependencies String[] // Array of phase IDs this depends on
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  tasks Task[]
+  
+  @@map("project_phases")
+}
+
+model Task {
+  id        String @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  phaseId   String?
+  phase     ProjectPhase? @relation(fields: [phaseId], references: [id])
+  
+  // Task details
+  name        String
+  description String?
+  type        TaskType @default(CONSTRUCTION)
+  status      TaskStatus @default(NOT_STARTED)
+  priority    Priority @default(MEDIUM)
+  
+  // Assignment
+  assignedToId String?
+  assignedTo   User? @relation(fields: [assignedToId], references: [id])
+  
+  // Timeline
+  estimatedStartDate DateTime?
+  actualStartDate    DateTime?
+  estimatedEndDate   DateTime?
+  actualEndDate      DateTime?
+  estimatedHours     Decimal? @db.Decimal(8, 2)
+  actualHours        Decimal? @db.Decimal(8, 2)
+  
+  // Budget
+  estimatedCost Decimal? @db.Decimal(10, 2)
+  actualCost    Decimal? @db.Decimal(10, 2)
+  
+  // Dependencies
+  dependencies String[] // Array of task IDs this depends on
+  
+  // Additional details
+  notes        String?
+  tags         String[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  timeEntries TimeEntry[]
+  materials   TaskMaterial[]
+  documents   Document[]
+  
+  @@map("tasks")
+}
+
+// Budget & Cost Management
+model BudgetCategory {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  code        String? // For accounting systems
+  parentId    String?
+  parent      BudgetCategory? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    BudgetCategory[] @relation("CategoryHierarchy")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  budgetItems BudgetItem[]
+  
+  @@map("budget_categories")
+}
+
+model BudgetItem {
+  id         String @id @default(cuid())
+  projectId  String
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  categoryId String
+  category   BudgetCategory @relation(fields: [categoryId], references: [id])
+  
+  // Item details
+  name        String
+  description String?
+  unit        String? // sq ft, linear ft, each, hours, etc.
+  quantity    Decimal @db.Decimal(10, 3)
+  
+  // Pricing
+  estimatedUnitCost Decimal @db.Decimal(10, 2)
+  actualUnitCost    Decimal? @db.Decimal(10, 2)
+  estimatedTotal    Decimal @db.Decimal(12, 2) // quantity * estimatedUnitCost
+  actualTotal       Decimal? @db.Decimal(12, 2)
+  
+  // Vendor information
+  supplierId String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+  
+  // Status
+  status     BudgetItemStatus @default(ESTIMATED)
+  notes      String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("budget_items")
+}
+
+// Material & Supplier Management
+model Supplier {
+  id        String @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  // Basic information
+  name      String
+  type      SupplierType
+  email     String?
+  phone     String?
+  website   String?
+  
+  // Address
+  address   Json?
+  
+  // Business details
+  license   String?
+  insurance String?
+  rating    Decimal? @db.Decimal(3, 2) // 1.00 to 5.00
+  
+  // Financial terms
+  paymentTerms Int? // Days
+  creditLimit  Decimal? @db.Decimal(12, 2)
+  
+  // Enhanced vendor information
+  specialties      String[] // Specialties this vendor offers
+  serviceRadius    Int? // Service radius in miles
+  yearsInBusiness  Int?
+  employeeCount    Int?
+  
+  // Texas-specific information
+  texasLicense     String? // Texas contractor license
+  libertyHillApproved Boolean @default(false) // Approved by Liberty Hill
+  hoaApproved      Boolean @default(false) // HOA approved vendor
+  
+  // Research and AI data
+  discoveredVia    String? // How this vendor was discovered (RESEARCH, MANUAL, REFERRAL)
+  researchData     Json? // Original research data from Perplexity MCP
+  lastResearched   DateTime? // Last time vendor info was researched/updated
+  
+  // Performance tracking
+  performanceScore Decimal? @db.Decimal(3, 2) // Overall performance score
+  onTimePercentage Decimal? @db.Decimal(5, 2) // Percentage of on-time deliveries
+  qualityScore     Decimal? @db.Decimal(3, 2) // Quality rating
+  costEfficiency   Decimal? @db.Decimal(3, 2) // Cost efficiency rating
+  
+  // Communication preferences
+  preferredContact String? // EMAIL, PHONE, SMS
+  responseTime     Int? // Average response time in hours
+  
+  // Status
+  status    SupplierStatus @default(ACTIVE)
+  notes     String?
+  tags      String[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  budgetItems    BudgetItem[]
+  materialOrders MaterialOrder[]
+  materialVendors MaterialVendor[]
+  rfpResponses   RFPResponse[]
+  
+  @@map("suppliers")
+}
+
+model MaterialOrder {
+  id        String @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  
+  // Order details
+  orderNumber String @unique
+  status      OrderStatus @default(DRAFT)
+  
+  // Timeline
+  orderDate    DateTime @default(now())
+  expectedDate DateTime?
+  deliveredDate DateTime?
+  
+  // Financial
+  subtotal     Decimal @db.Decimal(12, 2)
+  tax          Decimal @db.Decimal(12, 2)
+  shipping     Decimal @db.Decimal(12, 2)
+  total        Decimal @db.Decimal(12, 2)
+  
+  // Delivery information
+  deliveryAddress Json?
+  notes          String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  items MaterialOrderItem[]
+  
+  @@map("material_orders")
+}
+
+model MaterialOrderItem {
+  id      String @id @default(cuid())
+  orderId String
+  order   MaterialOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  // Item details
+  name        String
+  description String?
+  sku         String?
+  unit        String
+  quantity    Decimal @db.Decimal(10, 3)
+  unitCost    Decimal @db.Decimal(10, 2)
+  total       Decimal @db.Decimal(12, 2)
+  
+  // Delivery tracking
+  quantityDelivered Decimal @db.Decimal(10, 3) @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("material_order_items")
+}
+
+model TaskMaterial {
+  id     String @id @default(cuid())
+  taskId String
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  // Material details
+  name        String
+  description String?
+  unit        String
+  quantity    Decimal @db.Decimal(10, 3)
+  unitCost    Decimal? @db.Decimal(10, 2)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("task_materials")
+}
+
+// Time Tracking
+model TimeEntry {
+  id        String @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+  
+  taskId String?
+  task   Task? @relation(fields: [taskId], references: [id])
+  
+  // Time details
+  startTime   DateTime
+  endTime     DateTime?
+  duration    Decimal? @db.Decimal(8, 2) // Hours
+  description String?
+  
+  // Billing
+  hourlyRate  Decimal? @db.Decimal(8, 2)
+  billable    Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("time_entries")
+}
+
+// Expense Tracking
+model Expense {
+  id        String @id @default(cuid())
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+  
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+  
+  // Expense details
+  description String
+  category    String
+  amount      Decimal @db.Decimal(10, 2)
+  expenseDate DateTime @default(now())
+  
+  // Documentation
+  receipt     String? // File path/URL
+  notes       String?
+  
+  // Approval
+  status      ExpenseStatus @default(PENDING)
+  approvedBy  String?
+  approvedAt  DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("expenses")
+}
+
+// Document Management
+model Document {
+  id        String @id @default(cuid())
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+  
+  taskId String?
+  task   Task? @relation(fields: [taskId], references: [id])
+  
+  uploadedById String
+  uploadedBy   User @relation(fields: [uploadedById], references: [id])
+  
+  // Document details
+  name        String
+  description String?
+  type        DocumentType
+  category    String?
+  
+  // File information
+  fileName    String
+  filePath    String
+  fileSize    Int // Bytes
+  mimeType    String
+  
+  // Permissions
+  isPublic    Boolean @default(false)
+  tags        String[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("documents")
+}
+
+// Quality Control & Inspections
+model Inspection {
+  id        String @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  // Inspection details
+  type        InspectionType
+  phase       String
+  inspector   String
+  date        DateTime
+  status      InspectionStatus @default(SCHEDULED)
+  
+  // Results
+  passed      Boolean?
+  notes       String?
+  issues      Json? // Array of issues found
+  
+  // Documentation
+  reportPath  String?
+  photos      String[] // Array of photo paths
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("inspections")
+}
+
+// Change Management
+model ChangeOrder {
+  id        String @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  // Change order details
+  number      String
+  title       String
+  description String
+  reason      String
+  
+  // Financial impact
+  costChange     Decimal @db.Decimal(12, 2)
+  timeChange     Int? // Days
+  
+  // Approval
+  status         ChangeOrderStatus @default(PENDING)
+  requestedDate  DateTime @default(now())
+  approvedDate   DateTime?
+  approvedBy     String?
+  
+  // Documentation
+  attachments    String[] // File paths
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("change_orders")
+}
+
+// Financial Management
+model Invoice {
+  id        String @id @default(cuid())
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+  
+  clientId  String
+  client    Client @relation(fields: [clientId], references: [id])
+  
+  // Invoice details
+  invoiceNumber String @unique
+  title         String?
+  description   String?
+  
+  // Financial details
+  subtotal      Decimal @db.Decimal(12, 2)
+  tax           Decimal @db.Decimal(12, 2)
+  total         Decimal @db.Decimal(12, 2)
+  amountPaid    Decimal @db.Decimal(12, 2) @default(0)
+  
+  // Timeline
+  issueDate     DateTime @default(now())
+  dueDate       DateTime
+  paidDate      DateTime?
+  
+  // Status
+  status        InvoiceStatus @default(DRAFT)
+  notes         String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  items InvoiceItem[]
+  
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id        String @id @default(cuid())
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  
+  description String
+  quantity    Decimal @db.Decimal(10, 3)
+  unitPrice   Decimal @db.Decimal(10, 2)
+  total       Decimal @db.Decimal(12, 2)
+  
+  @@map("invoice_items")
+}
+
+// Enhanced Communication Management
+model Communication {
+  id        String @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  // Communication details
+  type        CommunicationType
+  subject     String?
+  content     String
+  direction   String // INBOUND, OUTBOUND
+  
+  // Participants
+  fromEmail   String?
+  toEmails    String[] // Array of email addresses
+  ccEmails    String[] // CC recipients
+  
+  // Gmail integration data
+  gmailId     String? // Gmail message ID
+  threadId    String? // Gmail thread ID
+  labelIds    String[] // Gmail labels
+  emailData   Json? // Complete Gmail API response
+  
+  // Vendor/supplier association
+  vendorId    String?
+  supplierId  String?
+  
+  // Status and tracking
+  status      CommunicationStatus @default(UNREAD)
+  isAutoGenerated Boolean @default(false) // Generated by system
+  responseRequired Boolean @default(false)
+  followUpDate DateTime?
+  
+  // Attachments
+  attachments String[] // File paths or document IDs
+  
+  // AI Processing
+  extractedData Json? // AI-extracted quotes, timelines, etc.
+  sentiment     String? // POSITIVE, NEGATIVE, NEUTRAL
+  priority      Priority @default(MEDIUM)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("communications")
+}
+
+model Decision {
+  id        String @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  // Decision details
+  title       String
+  description String
+  category    String // DESIGN, MATERIAL, VENDOR, TIMELINE, BUDGET
+  
+  // Options considered
+  options     Json // Array of options with pros/cons
+  selected    String // Selected option
+  reasoning   String? // Why this option was chosen
+  
+  // Decision makers
+  decisionMakers String[] // Array of user IDs or names
+  approvedBy     String?
+  approvedAt     DateTime?
+  
+  // Impact assessment
+  budgetImpact   Decimal? @db.Decimal(12, 2)
+  timelineImpact Int? // Days
+  
+  // Documentation
+  attachments String[] // Supporting documents
+  notes       String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("decisions")
+}
+
+model Issue {
+  id        String @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  // Issue details
+  title       String
+  description String
+  category    String // QUALITY, SAFETY, TIMELINE, BUDGET, DESIGN
+  severity    IssueSeverity @default(MEDIUM)
+  status      IssueStatus @default(OPEN)
+  
+  // Assignment
+  reportedById String?
+  assignedToId String?
+  
+  // Location
+  location    String? // Area of the house
+  coordinates Json? // GPS or floor plan coordinates
+  
+  // Timeline
+  discoveredAt  DateTime @default(now())
+  resolvedAt    DateTime?
+  targetDate    DateTime?
+  
+  // Impact
+  budgetImpact   Decimal? @db.Decimal(12, 2)
+  timelineImpact Int? // Days
+  
+  // Documentation
+  photos      String[] // Photo file paths
+  attachments String[] // Other documents
+  
+  // Resolution
+  resolution  String?
+  preventive  String? // Preventive measures for future
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("issues")
+}
+
+model VendorResearch {
+  id           String @id @default(cuid())
+  projectId    String?
+  project      Project? @relation(fields: [projectId], references: [id])
+  
+  // Research details
+  trade        String // ELECTRICAL, PLUMBING, HVAC, etc.
+  searchQuery  String
+  location     String // Search location
+  
+  // Research results from Perplexity MCP
+  researchData Json // Complete research results
+  vendorsFound Json // Array of discovered vendors
+  
+  // Quality metrics
+  confidence   Float @default(0.0) // Research confidence 0-1
+  completeness Float @default(0.0) // Data completeness 0-1
+  
+  // Status
+  status       ResearchStatus @default(COMPLETED)
+  reviewedBy   String?
+  reviewedAt   DateTime?
+  
+  // Auto-application
+  vendorsCreated Int @default(0) // Number of vendors created from this research
+  applied       Boolean @default(false) // Whether results were applied to project
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("vendor_research")
+}
+
+// Communication & Notifications
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Notification details
+  type    NotificationType
+  title   String
+  message String
+  data    Json? // Additional data
+  
+  // Status
+  read    Boolean @default(false)
+  readAt  DateTime?
+  
+  createdAt DateTime @default(now())
+  
+  @@map("notifications")
+}
+
+// Enums
+enum UserRole {
+  ADMIN
+  MANAGER
+  SUPERVISOR
+  EMPLOYEE
+  CLIENT
+  SUBCONTRACTOR
+}
+
+enum ClientType {
+  INDIVIDUAL
+  BUSINESS
+  GOVERNMENT
+}
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+  PROSPECT
+  ARCHIVED
+}
+
+enum PaymentMethod {
+  CASH
+  CHECK
+  CREDIT_CARD
+  ACH
+  WIRE_TRANSFER
+}
+
+enum ProjectType {
+  CUSTOM_HOME
+  PRODUCTION_HOME
+  REMODEL
+  ADDITION
+  COMMERCIAL
+  MULTI_FAMILY
+}
+
+enum ProjectStatus {
+  PLANNING
+  PERMITS
+  CONSTRUCTION
+  INSPECTION
+  COMPLETE
+  ON_HOLD
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum PhaseStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETE
+  ON_HOLD
+  CANCELLED
+}
+
+enum TaskType {
+  CONSTRUCTION
+  INSPECTION
+  PERMIT
+  DELIVERY
+  MEETING
+  ADMIN
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETE
+  ON_HOLD
+  CANCELLED
+}
+
+enum BudgetItemStatus {
+  ESTIMATED
+  QUOTED
+  ORDERED
+  DELIVERED
+  INSTALLED
+  PAID
+}
+
+enum SupplierType {
+  MATERIAL
+  SUBCONTRACTOR
+  EQUIPMENT
+  SERVICE
+}
+
+enum SupplierStatus {
+  ACTIVE
+  INACTIVE
+  PREFERRED
+  BLACKLISTED
+}
+
+enum OrderStatus {
+  DRAFT
+  PENDING
+  ORDERED
+  PARTIAL
+  DELIVERED
+  CANCELLED
+}
+
+enum ExpenseStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+}
+
+enum DocumentType {
+  CONTRACT
+  PERMIT
+  INSPECTION
+  PHOTO
+  PLAN
+  SPECIFICATION
+  INVOICE
+  RECEIPT
+  OTHER
+}
+
+enum InspectionType {
+  FOUNDATION
+  FRAMING
+  ELECTRICAL
+  PLUMBING
+  HVAC
+  INSULATION
+  DRYWALL
+  FINAL
+  CUSTOM
+}
+
+enum InspectionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  PASSED
+  FAILED
+  CANCELLED
+}
+
+enum ChangeOrderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  IMPLEMENTED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PARTIAL
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  TASK_COMPLETED
+  DEADLINE_APPROACHING
+  BUDGET_ALERT
+  INSPECTION_SCHEDULED
+  PAYMENT_RECEIVED
+  CHANGE_ORDER
+  GENERAL
+}
+
+// New enums for enhanced features
+enum CommunicationType {
+  EMAIL
+  PHONE
+  SMS
+  MEETING
+  RFP
+  QUOTE_RESPONSE
+  CONTRACT
+  INVOICE
+  GENERAL
+}
+
+enum CommunicationStatus {
+  UNREAD
+  READ
+  REPLIED
+  FORWARDED
+  ARCHIVED
+  FLAGGED
+  PENDING_RESPONSE
+}
+
+enum IssueSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+  SAFETY
+}
+
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+  ESCALATED
+  ON_HOLD
+}
+
+enum ResearchStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+
+// Material Management System
+model Material {
+  id           String @id @default(cuid())
+  
+  // Basic information
+  name         String
+  description  String?
+  category     String
+  subcategory  String?
+  sku          String?
+  upc          String?
+  
+  // Specifications
+  specifications Json? // Technical specs, dimensions, etc.
+  grade        String? // Material grade/quality
+  brand        String?
+  model        String?
+  
+  // Pricing and availability
+  basePrice    Decimal? @db.Decimal(10, 2)
+  unit         String // sq ft, linear ft, each, etc.
+  leadTime     Int? // Days
+  
+  // Research data
+  researchData Json? // From Perplexity MCP research
+  lastResearched DateTime?
+  
+  // Performance metrics
+  popularityScore Float @default(0.0) // Usage frequency
+  qualityRating   Decimal? @db.Decimal(3, 2)
+  
+  status       MaterialStatus @default(ACTIVE)
+  tags         String[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  vendors      MaterialVendor[]
+  selections   MaterialSelection[]
+  
+  @@map("materials")
+}
+
+model MaterialVendor {
+  id         String @id @default(cuid())
+  materialId String
+  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  
+  // Vendor-specific details
+  vendorSku    String?
+  price        Decimal @db.Decimal(10, 2)
+  availability String // IN_STOCK, LIMITED, SPECIAL_ORDER, DISCONTINUED
+  leadTime     Int? // Days
+  minOrder     Decimal? @db.Decimal(10, 3)
+  
+  // Performance tracking
+  lastPrice    Decimal? @db.Decimal(10, 2)
+  priceHistory Json? // Historical pricing data
+  
+  isPreferred  Boolean @default(false)
+  notes        String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([materialId, supplierId])
+  @@map("material_vendors")
+}
+
+model MaterialSelection {
+  id         String @id @default(cuid())
+  projectId  String
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  materialId String
+  material   Material @relation(fields: [materialId], references: [id])
+  
+  // Selection details
+  category     String // FLOORING, FIXTURES, APPLIANCES, etc.
+  location     String? // Kitchen, Master Bath, etc.
+  quantity     Decimal @db.Decimal(10, 3)
+  
+  // Decision tracking
+  status       SelectionStatus @default(RESEARCHING)
+  selectedDate DateTime?
+  approvedBy   String?
+  approvedDate DateTime?
+  
+  // Alternative options considered
+  alternatives Json? // Array of alternative materials considered
+  
+  // Cost information
+  budgetedCost Decimal? @db.Decimal(12, 2)
+  actualCost   Decimal? @db.Decimal(12, 2)
+  
+  // Vendor selection
+  selectedVendorId String?
+  vendorQuotes     Json? // Array of vendor quotes
+  
+  notes        String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("material_selections")
+}
+
+// RFP (Request for Proposal) System
+model RFP {
+  id        String @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  // RFP details
+  title       String
+  description String
+  category    String // ELECTRICAL, PLUMBING, HVAC, GENERAL
+  
+  // Requirements
+  requirements Json // Detailed requirements and specifications
+  timeline     Json // Project timeline and milestones
+  budget       Decimal? @db.Decimal(12, 2) // Budget range
+  
+  // RFP process
+  status        RFPStatus @default(DRAFT)
+  publishDate   DateTime?
+  responseDeadline DateTime?
+  awardDate     DateTime?
+  
+  // Vendors
+  invitedVendors String[] // Array of vendor IDs
+  
+  // Templates and automation
+  emailTemplate  String? // Email template used
+  isAutoGenerated Boolean @default(false)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  responses RFPResponse[]
+  
+  @@map("rfps")
+}
+
+model RFPResponse {
+  id    String @id @default(cuid())
+  rfpId String
+  rfp   RFP @relation(fields: [rfpId], references: [id], onDelete: Cascade)
+  
+  vendorId String
+  vendor   Supplier @relation(fields: [vendorId], references: [id])
+  
+  // Response details
+  proposedCost  Decimal @db.Decimal(12, 2)
+  timeline      Json // Proposed timeline
+  methodology   String?
+  
+  // Materials and labor breakdown
+  laborCost     Decimal? @db.Decimal(12, 2)
+  materialCost  Decimal? @db.Decimal(12, 2)
+  equipmentCost Decimal? @db.Decimal(12, 2)
+  markup        Decimal? @db.Decimal(5, 2) // Percentage
+  
+  // Proposal documents
+  proposalDocument String? // File path
+  attachments      String[] // Additional files
+  
+  // Evaluation
+  score         Float? // Overall evaluation score
+  notes         String?
+  status        ResponseStatus @default(RECEIVED)
+  
+  // Communication
+  questionsAsked Json? // Array of clarification questions
+  responses      Json? // Vendor responses to questions
+  
+  submittedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([rfpId, vendorId])
+  @@map("rfp_responses")
+}
+
+// Advanced Analytics and Reporting
+model ProjectMetrics {
+  id        String @id @default(cuid())
+  projectId String @unique
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  // Timeline metrics
+  originalDuration    Int? // Original planned duration in days
+  currentDuration     Int? // Current projected duration
+  actualDuration      Int? // Actual duration (if completed)
+  daysOverdue         Int @default(0)
+  completionPercentage Float @default(0.0)
+  
+  // Budget metrics
+  originalBudget      Decimal? @db.Decimal(12, 2)
+  currentBudget       Decimal? @db.Decimal(12, 2)
+  spentAmount         Decimal? @db.Decimal(12, 2)
+  variance            Decimal? @db.Decimal(12, 2)
+  variancePercentage  Float @default(0.0)
+  
+  // Quality metrics
+  defectCount         Int @default(0)
+  reworkHours         Decimal? @db.Decimal(8, 2)
+  clientSatisfaction  Decimal? @db.Decimal(3, 2) // 1-5 rating
+  
+  // Productivity metrics
+  tasksCompleted      Int @default(0)
+  tasksTotal          Int @default(0)
+  averageTaskDuration Float @default(0.0)
+  teamUtilization     Float @default(0.0)
+  
+  // Vendor performance
+  vendorOnTimeRate    Float @default(0.0)
+  averageVendorScore  Float @default(0.0)
+  
+  // Predictive analytics
+  riskScore           Float @default(0.0) // Overall project risk 0-1
+  successProbability  Float @default(0.0) // Probability of on-time, on-budget completion
+  
+  // AI-generated insights
+  insights            Json? // AI-generated insights and recommendations
+  recommendations     Json? // Specific recommendations for improvement
+  
+  lastCalculated DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  @@map("project_metrics")
+}
+
+model Report {
+  id          String @id @default(cuid())
+  companyId   String
+  company     Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  // Report details
+  name        String
+  description String?
+  type        ReportType
+  format      ReportFormat @default(PDF)
+  
+  // Scope
+  projectIds  String[] // Projects included in report
+  dateRange   Json // {start: DateTime, end: DateTime}
+  
+  // Template and configuration
+  template    String // Report template used
+  config      Json // Report configuration options
+  
+  // Generation
+  status      ReportStatus @default(PENDING)
+  filePath    String? // Generated report file path
+  fileSize    Int? // File size in bytes
+  
+  // Scheduling
+  isScheduled Boolean @default(false)
+  schedule    Json? // Cron expression for scheduled reports
+  
+  // Delivery
+  recipients  String[] // Email addresses for delivery
+  
+  generatedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("reports")
+}
+
+// Webhook and Integration System
+model Webhook {
+  id        String @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  // Webhook details
+  name        String
+  description String?
+  url         String
+  secret      String? // Webhook secret for verification
+  
+  // Configuration
+  events      String[] // Events to trigger webhook
+  isActive    Boolean @default(true)
+  retryCount  Int @default(3)
+  timeout     Int @default(30) // Seconds
+  
+  // Headers and authentication
+  headers     Json? // Custom headers
+  authMethod  String? // NONE, BEARER, BASIC, API_KEY
+  authConfig  Json? // Authentication configuration
+  
+  // Performance tracking
+  successCount Int @default(0)
+  failureCount Int @default(0)
+  lastSuccess  DateTime?
+  lastFailure  DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  deliveries WebhookDelivery[]
+  
+  @@map("webhooks")
+}
+
+model WebhookDelivery {
+  id        String @id @default(cuid())
+  webhookId String
+  webhook   Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+  
+  // Delivery details
+  event     String
+  payload   Json
+  
+  // Response tracking
+  httpStatus   Int?
+  responseBody String?
+  responseTime Int? // Milliseconds
+  
+  // Retry information
+  attempts     Int @default(1)
+  successful   Boolean @default(false)
+  errorMessage String?
+  
+  deliveredAt DateTime @default(now())
+  
+  @@map("webhook_deliveries")
+}
+
+// Enhanced enums
+enum MaterialStatus {
+  ACTIVE
+  DISCONTINUED
+  SPECIAL_ORDER
+  SEASONAL
+}
+
+enum SelectionStatus {
+  RESEARCHING
+  OPTIONS_IDENTIFIED
+  PENDING_APPROVAL
+  APPROVED
+  ORDERED
+  DELIVERED
+  INSTALLED
+}
+
+enum RFPStatus {
+  DRAFT
+  PUBLISHED
+  RESPONSES_DUE
+  UNDER_REVIEW
+  AWARDED
+  CANCELLED
+}
+
+enum ResponseStatus {
+  RECEIVED
+  UNDER_REVIEW
+  SHORTLISTED
+  REJECTED
+  AWARDED
+}
+
+enum ReportType {
+  PROJECT_SUMMARY
+  BUDGET_ANALYSIS
+  TIMELINE_REPORT
+  VENDOR_PERFORMANCE
+  MATERIAL_USAGE
+  FINANCIAL_SUMMARY
+  CUSTOM
+}
+
+enum ReportFormat {
+  PDF
+  EXCEL
+  CSV
+  HTML
+  JSON
+}
+
+enum ReportStatus {
+  PENDING
+  GENERATING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
