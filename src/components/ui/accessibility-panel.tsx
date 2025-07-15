@@ -406,7 +406,7 @@ const AccessibilityPanel: React.FC<AccessibilityPanelProps> = ({
                       <h3 className="font-semibold text-sm">Audit Results</h3>
                       <Badge 
                         variant={auditResult.overallScore >= 80 ? "default" : 
-                                auditResult.overallScore >= 60 ? "warning" : "destructive"}
+                                auditResult.overallScore >= 60 ? "secondary" : "destructive"}
                       >
                         {Math.round(auditResult.overallScore)}%
                       </Badge>
@@ -486,4 +486,4 @@ const AccessibilityPanel: React.FC<AccessibilityPanelProps> = ({
   )
 }
 
-export { AccessibilityPanel, type AccessibilitySettings }
+export { AccessibilityPanel }

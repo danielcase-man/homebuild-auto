@@ -68,19 +68,19 @@ const CardTitle = React.forwardRef<
     level?: 1 | 2 | 3 | 4 | 5 | 6
   }
 >(({ className, level = 3, children, ...props }, ref) => {
-  const Heading = `h${level}` as keyof JSX.IntrinsicElements
+  const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements
   
-  return (
-    <Heading
-      ref={ref}
-      className={cn(
+  return React.createElement(
+    HeadingTag,
+    {
+      ref,
+      className: cn(
         "text-2xl font-semibold leading-none tracking-tight",
         className
-      )}
-      {...props}
-    >
-      {children}
-    </Heading>
+      ),
+      ...props
+    },
+    children
   )
 })
 CardTitle.displayName = "CardTitle"
