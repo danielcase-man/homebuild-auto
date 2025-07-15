@@ -26,6 +26,7 @@ import {
   X
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useProjectStore } from '@/stores/project-store'
 
 interface Panel {
   id: string
@@ -37,56 +38,25 @@ interface Panel {
   canResize: boolean
 }
 
-interface ProjectMetrics {
-  totalBudget: number
-  budgetUsed: number
-  daysRemaining: number
-  completion: number
-  tasksCompleted: number
-  totalTasks: number
-  activeIssues: number
-  crewOnSite: number
-}
-
 const CommandCenter: React.FC = () => {
+  const {
+    metrics,
+    notifications,
+    tasks,
+    crew,
+    issues,
+    initializeData,
+    markNotificationRead
+  } = useProjectStore()
+
   const [panels, setPanels] = useState<Panel[]>([])
   const [selectedPanel, setSelectedPanel] = useState<string | null>(null)
-  const [metrics, setMetrics] = useState<ProjectMetrics>({
-    totalBudget: 350000,
-    budgetUsed: 147500,
-    daysRemaining: 82,
-    completion: 42,
-    tasksCompleted: 156,
-    totalTasks: 372,
-    activeIssues: 3,
-    crewOnSite: 8
-  })
 
-  const [notifications, setNotifications] = useState([
-    {
-      id: '1',
-      type: 'warning',
-      title: 'Budget Alert',
-      message: 'Material costs 8% over budget',
-      timestamp: new Date(Date.now() - 30 * 60 * 1000)
-    },
-    {
-      id: '2',
-      type: 'info',
-      title: 'Inspection Scheduled',
-      message: 'Foundation inspection tomorrow at 10 AM',
-      timestamp: new Date(Date.now() - 60 * 60 * 1000)
-    },
-    {
-      id: '3',
-      type: 'success',
-      title: 'Permit Approved',
-      message: 'Electrical permit approved by Liberty Hill',
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000)
-    }
-  ])
+  // Initialize data and default panels
+  useEffect(() => {
+    initializeData()
+  }, [initializeData])
 
-  // Initialize default panels
   useEffect(() => {
     const defaultPanels: Panel[] = [
       {
@@ -128,7 +98,7 @@ const CommandCenter: React.FC = () => {
       {
         id: 'crew',
         title: 'Crew Management',
-        component: <CrewPanel />,
+        component: <CrewPanel crew={crew} />,
         size: 'small',
         position: { x: 800, y: 400 },
         isMinimized: false,
@@ -137,7 +107,7 @@ const CommandCenter: React.FC = () => {
       {
         id: 'issues',
         title: 'Issue Tracker',
-        component: <IssueTrackerPanel />,
+        component: <IssueTrackerPanel issues={issues} />,
         size: 'small',
         position: { x: 1000, y: 400 },
         isMinimized: false,
@@ -145,7 +115,7 @@ const CommandCenter: React.FC = () => {
       }
     ]
     setPanels(defaultPanels)
-  }, [metrics])
+  }, [metrics, crew, issues])
 
   const togglePanelMinimize = (panelId: string) => {
     setPanels(panels.map(panel => 
@@ -398,7 +368,7 @@ const CommandCenter: React.FC = () => {
 }
 
 // Panel Components
-const ProjectOverviewPanel: React.FC<{ metrics: ProjectMetrics }> = ({ metrics }) => (
+const ProjectOverviewPanel: React.FC<{ metrics: any }> = ({ metrics }) => (
   <div className="space-y-6">
     <div className="grid grid-cols-2 gap-4">
       <div className="bg-blue-50 p-4 rounded-lg">
@@ -465,7 +435,7 @@ const TimelinePanel: React.FC = () => (
   </div>
 )
 
-const BudgetPanel: React.FC<{ metrics: ProjectMetrics }> = ({ metrics }) => {
+const BudgetPanel: React.FC<{ metrics: any }> = ({ metrics }) => {
   const budgetPercentage = (metrics.budgetUsed / metrics.totalBudget) * 100
   
   return (
@@ -521,18 +491,14 @@ const CommunicationsPanel: React.FC = () => (
   </div>
 )
 
-const CrewPanel: React.FC = () => (
+const CrewPanel: React.FC<{ crew: any[] }> = ({ crew }) => (
   <div className="space-y-4">
     <div className="flex items-center justify-between">
       <h4 className="font-semibold text-gray-900">Crew Status</h4>
       <Users className="w-5 h-5 text-gray-500" />
     </div>
     <div className="space-y-2">
-      {[
-        { name: 'Mike Johnson', role: 'Foreman', status: 'on_site' },
-        { name: 'Sarah Wilson', role: 'Electrician', status: 'on_site' },
-        { name: 'Tom Martinez', role: 'Plumber', status: 'break' }
-      ].map((member, index) => (
+      {crew.map((member: any, index: number) => (
         <div key={index} className="flex items-center justify-between">
           <div>
             <p className="font-semibold text-gray-900 text-sm">{member.name}</p>
@@ -547,20 +513,16 @@ const CrewPanel: React.FC = () => (
   </div>
 )
 
-const IssueTrackerPanel: React.FC = () => (
+const IssueTrackerPanel: React.FC<{ issues: any[] }> = ({ issues }) => (
   <div className="space-y-4">
     <div className="flex items-center justify-between">
       <h4 className="font-semibold text-gray-900">Active Issues</h4>
       <AlertTriangle className="w-5 h-5 text-red-500" />
     </div>
     <div className="space-y-2">
-      {[
-        { issue: 'Scaffolding safety', severity: 'high' },
-        { issue: 'Material shortage', severity: 'medium' },
-        { issue: 'Weather delay', severity: 'low' }
-      ].map((item, index) => (
+      {issues.map((item: any, index: number) => (
         <div key={index} className="p-2 bg-red-50 rounded border-l-4 border-red-500">
-          <p className="text-sm font-semibold text-red-900">{item.issue}</p>
+          <p className="text-sm font-semibold text-red-900">{item.description}</p>
           <p className="text-xs text-red-700 capitalize">{item.severity} severity</p>
         </div>
       ))}
@@ -569,3 +531,4 @@ const IssueTrackerPanel: React.FC = () => (
 )
 
 export default CommandCenter
+export { CommandCenter }

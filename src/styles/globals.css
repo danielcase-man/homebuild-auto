@@ -386,3 +386,246 @@
     }
   }
 }
+
+/* Construction-specific color variables */
+:root {
+  --construction-orange: #FF6B35;
+  --construction-blue: #1B365D;
+  --construction-dark: #0F172A;
+  --construction-light: #F8FAFC;
+  --construction-yellow: #FDB837;
+  --construction-green: #10B981;
+  --construction-red: #EF4444;
+  --construction-gray: #6B7280;
+}
+
+/* React Day Picker Construction Theme */
+.construction-calendar {
+  --rdp-cell-size: 40px;
+  --rdp-accent-color: var(--construction-orange);
+  --rdp-background-color: var(--construction-light);
+  --rdp-accent-color-dark: var(--construction-blue);
+  --rdp-background-color-dark: var(--construction-dark);
+  --rdp-outline: 2px solid var(--construction-orange);
+  --rdp-outline-selected: 2px solid var(--construction-blue);
+  font-family: inherit;
+}
+
+.construction-calendar .rdp-months {
+  display: flex;
+  gap: 1rem;
+}
+
+.construction-calendar .rdp-month {
+  margin: 0;
+}
+
+.construction-calendar .rdp-table {
+  border-collapse: collapse;
+  margin: 0;
+  width: 100%;
+}
+
+.construction-calendar .rdp-head_cell {
+  padding: 0.5rem;
+  text-align: center;
+  font-weight: 600;
+  color: var(--construction-blue);
+  font-size: 0.875rem;
+}
+
+.construction-calendar .rdp-cell {
+  padding: 0;
+  text-align: center;
+  position: relative;
+}
+
+.construction-calendar .rdp-button {
+  width: var(--rdp-cell-size);
+  height: var(--rdp-cell-size);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.construction-calendar .rdp-button:hover {
+  background-color: var(--construction-light);
+  transform: scale(1.05);
+}
+
+.construction-calendar .rdp-button:focus {
+  outline: var(--rdp-outline);
+  outline-offset: 2px;
+}
+
+.construction-calendar .rdp-day_selected {
+  background-color: var(--construction-orange);
+  color: white;
+  font-weight: 600;
+}
+
+.construction-calendar .rdp-day_selected:hover {
+  background-color: var(--construction-blue);
+}
+
+.construction-calendar .rdp-day_today {
+  font-weight: 600;
+  color: var(--construction-orange);
+  background-color: rgba(255, 107, 53, 0.1);
+}
+
+.construction-calendar .rdp-day_disabled {
+  color: #9CA3AF;
+  cursor: not-allowed;
+}
+
+.construction-calendar .rdp-day_disabled:hover {
+  background: transparent;
+  transform: none;
+}
+
+.construction-calendar .rdp-day_outside {
+  color: #D1D5DB;
+}
+
+.construction-calendar .rdp-day_range_start,
+.construction-calendar .rdp-day_range_end {
+  background-color: var(--construction-orange);
+  color: white;
+}
+
+.construction-calendar .rdp-day_range_middle {
+  background-color: rgba(255, 107, 53, 0.2);
+  color: var(--construction-blue);
+}
+
+/* Construction-specific modifiers */
+.construction-calendar .rdp-day_holiday {
+  position: relative;
+}
+
+.construction-calendar .rdp-day_holiday::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: var(--construction-yellow);
+  border-radius: 50%;
+}
+
+.construction-calendar .rdp-day_blocked {
+  position: relative;
+}
+
+.construction-calendar .rdp-day_blocked::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 6px;
+  height: 6px;
+  background-color: var(--construction-red);
+  border-radius: 50%;
+}
+
+.construction-calendar .rdp-day_weather_restricted {
+  position: relative;
+}
+
+.construction-calendar .rdp-day_weather_restricted::after {
+  content: "🌧️";
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 8px;
+  line-height: 1;
+}
+
+.construction-calendar .rdp-day_critical_path {
+  box-shadow: inset 0 0 0 2px var(--construction-yellow);
+  background-color: rgba(251, 191, 36, 0.1);
+}
+
+/* Navigation buttons */
+.construction-calendar .rdp-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.construction-calendar .rdp-nav_button {
+  background: transparent;
+  border: 1px solid var(--construction-gray);
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.construction-calendar .rdp-nav_button:hover {
+  background-color: var(--construction-light);
+  border-color: var(--construction-orange);
+}
+
+.construction-calendar .rdp-nav_button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Caption */
+.construction-calendar .rdp-caption {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.construction-calendar .rdp-caption_label {
+  font-weight: 600;
+  color: var(--construction-blue);
+  font-size: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .construction-calendar {
+    --rdp-cell-size: 36px;
+  }
+  
+  .construction-calendar .rdp-months {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .construction-calendar .rdp-head_cell,
+  .construction-calendar .rdp-button {
+    font-size: 0.75rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .construction-calendar {
+    --rdp-background-color: var(--construction-dark);
+    --rdp-accent-color: var(--construction-orange);
+  }
+  
+  .construction-calendar .rdp-day_today {
+    background-color: rgba(255, 107, 53, 0.2);
+  }
+  
+  .construction-calendar .rdp-day_range_middle {
+    background-color: rgba(255, 107, 53, 0.3);
+  }
+}

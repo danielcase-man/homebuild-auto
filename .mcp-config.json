@@ -44,6 +44,16 @@
       ],
       "env": {},
       "description": "Browser automation for accessibility testing, performance monitoring, and UI validation"
+    },
+    "perplexity-search": {
+      "command": "npx",
+      "args": [
+        "perplexity-mcp"
+      ],
+      "env": {
+        "PERPLEXITY_API_KEY": ""
+      },
+      "description": "Advanced research for design trends, best practices, and development insights"
     }
   }
 }

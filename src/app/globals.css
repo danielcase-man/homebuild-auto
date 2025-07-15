@@ -4,9 +4,9 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 0 0% 98%;
     --foreground: 222.2 84% 4.9%;
-    --primary: 214.3 92.4% 53.9%;
+    --primary: 25 95% 53%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96%;
     --secondary-foreground: 222.2 84% 4.9%;
@@ -16,13 +16,30 @@
     --muted-foreground: 215.4 16.3% 46.9%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 214.3 92.4% 53.9%;
+    --ring: 25 95% 53%;
     --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
+    --chart-1: 25 95% 53%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    
+    /* Updated design system colors */
+    --construction-blue: 210 100% 45%;
+    --construction-orange: 25 95% 53%;
+    --construction-yellow: 48 100% 55%;
+    --construction-red: 0 100% 55%;
+    --construction-green: 120 100% 35%;
+    --construction-gray: 210 10% 50%;
+    
+    /* Dashboard theme colors */
+    --dashboard-primary: 25 95% 53%;
+    --dashboard-secondary: 210 40% 96%;
+    --dashboard-accent: 25 95% 53%;
+    --dashboard-muted: 210 40% 96%;
+    --dashboard-success: 142 71% 45%;
+    --dashboard-warning: 38 92% 50%;
+    --dashboard-error: 0 84% 60%;
   }
 
   .dark {

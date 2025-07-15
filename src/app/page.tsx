@@ -14,9 +14,16 @@ import {
   CheckCircle,
   Zap,
   Shield,
-  Globe
+  Globe,
+  Search,
+  Github
 } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { AppHeader } from '@/components/ui/app-header'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 
 const LandingPage: React.FC = () => {
   const features = [
@@ -59,80 +66,160 @@ const LandingPage: React.FC = () => {
     { number: "24/7", label: "Support Available" }
   ]
 
-  return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-20"></div>
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              Home Builder
-              <span className="bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent">
-                {" "}Pro
-              </span>
-            </h1>
-            <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Next-generation construction management platform with AI-powered insights, 
-              Texas-specific compliance, and mobile-first design for modern home builders.
-            </p>
-            
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <Link href="/dashboard">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2"
-                >
-                  <Monitor className="w-6 h-6" />
-                  <span>Desktop Dashboard</span>
-                  <ArrowRight className="w-5 h-5" />
-                </motion.button>
-              </Link>
-              
-              <Link href="/mobile">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-white bg-opacity-10 backdrop-blur-sm border border-white border-opacity-30 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-opacity-20 transition-all duration-200 flex items-center space-x-2"
-                >
-                  <Smartphone className="w-6 h-6" />
-                  <span>Mobile Job Site</span>
-                  <ArrowRight className="w-5 h-5" />
-                </motion.button>
-              </Link>
-            </div>
+  const themes = [
+    { name: "Default", color: "bg-gray-500" },
+    { name: "Red", color: "bg-red-500" },
+    { name: "Rose", color: "bg-rose-500" },
+    { name: "Orange", color: "bg-orange-500" },
+    { name: "Green", color: "bg-green-500" },
+    { name: "Blue", color: "bg-blue-500" },
+    { name: "Yellow", color: "bg-yellow-500" },
+    { name: "Violet", color: "bg-violet-500" },
+  ]
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: index * 0.1 }}
-                  className="text-center"
-                >
-                  <div className="text-3xl md:text-4xl font-bold text-orange-400 mb-2">
-                    {stat.number}
-                  </div>
-                  <div className="text-blue-200 text-sm md:text-base">
-                    {stat.label}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <AppHeader />
+      
+      {/* Hero Section - Dashboard Style */}
+      <section className="px-6 py-8">
+        <div className="text-center mb-8">
+          <Badge variant="outline" className="mb-4">
+            New Home Builder Platform →
+          </Badge>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Pick a Color. Make it yours.
+          </h1>
+          <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
+            Try our hand-picked themes. Copy and paste them into your project. New theme editor coming soon.
+          </p>
+          <div className="flex items-center justify-center space-x-4 mb-8">
+            <Button className="bg-black text-white hover:bg-gray-800">
+              Browse Themes
+            </Button>
+            <Button variant="outline">
+              Documentation
+            </Button>
+          </div>
+        </div>
+
+        {/* Theme Picker */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-6">
+            {themes.map((theme) => (
+              <button
+                key={theme.name}
+                className="text-sm font-medium text-orange-600 transition-colors"
+              >
+                {theme.name}
+              </button>
+            ))}
+          </div>
+          <Button variant="outline" size="sm">
+            Copy Code
+          </Button>
+        </div>
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {features.map((feature, index) => (
+            <Card key={index} className="hover:shadow-lg transition-shadow duration-200">
+              <CardHeader>
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600 mb-4">
+                  {feature.icon}
+                </div>
+                <CardTitle className="text-lg">{feature.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">{feature.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Stats Dashboard Style */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+          {stats.map((stat, index) => (
+            <Card key={index}>
+              <CardContent className="p-6 text-center">
+                <div className="text-2xl font-bold text-orange-600 mb-2">
+                  {stat.number}
+                </div>
+                <div className="text-sm text-gray-600">
+                  {stat.label}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Action Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Monitor className="h-5 w-5" />
+                Desktop Dashboard
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-gray-600">
+                Comprehensive construction management with analytics, scheduling, and compliance tools.
+              </p>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span className="text-sm">Multi-panel analytics dashboard</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span className="text-sm">Predictive insights and forecasting</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span className="text-sm">Texas compliance management</span>
+                </div>
+              </div>
+              <Link href="/dashboard">
+                <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                  Launch Dashboard
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Smartphone className="h-5 w-5" />
+                Mobile Job Site
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-gray-600">
+                Field-optimized interface for crews with offline capability and real-time updates.
+              </p>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span className="text-sm">Glove-friendly touch interface</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span className="text-sm">Offline capability with sync</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span className="text-sm">Real-time crew management</span>
+                </div>
+              </div>
+              <Link href="/mobile">
+                <Button variant="outline" className="w-full">
+                  Open Mobile Site
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
         </div>
       </section>
 

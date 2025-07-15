@@ -110,13 +110,13 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
       </div>
 
       {/* Header */}
-      <div className="bg-blue-700 text-white px-4 py-4 sticky top-8 z-40">
+      <div className="bg-orange-600 text-white px-4 py-4 sticky top-8 z-40">
         <div className="flex items-center justify-between">
           {showBackButton ? (
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={onBack}
-              className="p-2 hover:bg-blue-600 rounded-lg"
+              className="p-2 hover:bg-orange-700 rounded-lg"
             >
               <ArrowLeft className="w-6 h-6" />
             </motion.button>
@@ -128,7 +128,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
           
           <motion.button
             whileTap={{ scale: 0.95 }}
-            className="p-2 hover:bg-blue-600 rounded-lg"
+            className="p-2 hover:bg-orange-700 rounded-lg"
           >
             <Menu className="w-6 h-6" />
           </motion.button>

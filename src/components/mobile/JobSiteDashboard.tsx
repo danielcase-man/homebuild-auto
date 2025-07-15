@@ -22,131 +22,26 @@ import {
   Home
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-
-interface Task {
-  id: string
-  title: string
-  status: 'pending' | 'in_progress' | 'completed' | 'blocked'
-  priority: 'low' | 'medium' | 'high' | 'urgent'
-  estimatedTime: string
-  assignedTo?: string
-  notes?: string
-  location?: string
-  dependencies?: string[]
-}
-
-interface Crew {
-  id: string
-  name: string
-  role: string
-  status: 'on_site' | 'off_site' | 'break' | 'emergency'
-  phone: string
-  currentTask?: string
-  checkInTime?: Date
-}
-
-interface Issue {
-  id: string
-  type: 'safety' | 'quality' | 'material' | 'weather' | 'equipment'
-  severity: 'low' | 'medium' | 'high' | 'critical'
-  description: string
-  location: string
-  reportedBy: string
-  timestamp: Date
-  photos?: string[]
-  status: 'open' | 'in_progress' | 'resolved'
-}
+import { useProjectStore } from '@/stores/project-store'
 
 const JobSiteDashboard: React.FC = () => {
+  const {
+    tasks,
+    crew,
+    issues,
+    updateTask,
+    initializeData
+  } = useProjectStore()
+
   const [activeTab, setActiveTab] = useState<'tasks' | 'crew' | 'issues' | 'photos'>('tasks')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [batteryLevel, setBatteryLevel] = useState(85)
   const [connectionStrength, setConnectionStrength] = useState(3)
 
-  // Mock data - would come from API
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: '1',
-      title: 'Foundation Inspection',
-      status: 'pending',
-      priority: 'urgent',
-      estimatedTime: '30 min',
-      assignedTo: 'Mike Johnson',
-      location: 'Foundation Area',
-      notes: 'Inspector arriving at 10:00 AM'
-    },
-    {
-      id: '2',
-      title: 'Electrical Rough-In',
-      status: 'in_progress',
-      priority: 'high',
-      estimatedTime: '4 hours',
-      assignedTo: 'Sarah Wilson',
-      location: 'Main Floor'
-    },
-    {
-      id: '3',
-      title: 'Plumbing Installation',
-      status: 'completed',
-      priority: 'medium',
-      estimatedTime: '6 hours',
-      assignedTo: 'Tom Martinez',
-      location: 'Basement'
-    }
-  ])
-
-  const [crew, setCrew] = useState<Crew[]>([
-    {
-      id: '1',
-      name: 'Mike Johnson',
-      role: 'Foreman',
-      status: 'on_site',
-      phone: '(512) 555-0123',
-      currentTask: 'Foundation Inspection',
-      checkInTime: new Date(Date.now() - 3 * 60 * 60 * 1000)
-    },
-    {
-      id: '2',
-      name: 'Sarah Wilson',
-      role: 'Electrician',
-      status: 'on_site',
-      phone: '(512) 555-0124',
-      currentTask: 'Electrical Rough-In',
-      checkInTime: new Date(Date.now() - 2 * 60 * 60 * 1000)
-    },
-    {
-      id: '3',
-      name: 'Tom Martinez',
-      role: 'Plumber',
-      status: 'break',
-      phone: '(512) 555-0125',
-      checkInTime: new Date(Date.now() - 4 * 60 * 60 * 1000)
-    }
-  ])
-
-  const [issues, setIssues] = useState<Issue[]>([
-    {
-      id: '1',
-      type: 'safety',
-      severity: 'high',
-      description: 'Loose scaffolding on east side',
-      location: 'East Wall - 2nd Floor',
-      reportedBy: 'Mike Johnson',
-      timestamp: new Date(Date.now() - 30 * 60 * 1000),
-      status: 'open'
-    },
-    {
-      id: '2',
-      type: 'material',
-      severity: 'medium',
-      description: 'Short 20 pieces of 2x4 lumber',
-      location: 'Material Storage',
-      reportedBy: 'Sarah Wilson',
-      timestamp: new Date(Date.now() - 60 * 60 * 1000),
-      status: 'in_progress'
-    }
-  ])
+  useEffect(() => {
+    initializeData()
+  }, [initializeData])
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -208,77 +103,85 @@ const JobSiteDashboard: React.FC = () => {
     </motion.button>
   )
 
-  const TaskCard: React.FC<{ task: Task }> = ({ task }) => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`
-        bg-white rounded-xl shadow-lg border-l-4 ${getPriorityColor(task.priority)}
-        p-6 mb-4 touch-manipulation
-      `}
-    >
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <h3 className="text-lg font-bold text-gray-900 mb-2">{task.title}</h3>
-          <div className="flex items-center space-x-4 text-sm text-gray-600">
-            <span className="flex items-center">
-              <Clock className="w-4 h-4 mr-1" />
-              {task.estimatedTime}
-            </span>
-            {task.location && (
+  const TaskCard: React.FC<{ task: typeof tasks[0] }> = ({ task }) => {
+    const handleTaskStatusToggle = () => {
+      const newStatus = task.status === 'in_progress' ? 'pending' : 'in_progress'
+      updateTask(task.id, { status: newStatus })
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`
+          bg-white rounded-xl shadow-lg border-l-4 ${getPriorityColor(task.priority)}
+          p-6 mb-4 touch-manipulation
+        `}
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">{task.title}</h3>
+            <div className="flex items-center space-x-4 text-sm text-gray-600">
               <span className="flex items-center">
-                <MapPin className="w-4 h-4 mr-1" />
-                {task.location}
+                <Clock className="w-4 h-4 mr-1" />
+                {task.estimatedTime}
               </span>
-            )}
+              {task.location && (
+                <span className="flex items-center">
+                  <MapPin className="w-4 h-4 mr-1" />
+                  {task.location}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className={`px-3 py-1 rounded-full text-white text-sm font-semibold ${getStatusColor(task.status)}`}>
+            {task.status.replace('_', ' ')}
           </div>
         </div>
-        <div className={`px-3 py-1 rounded-full text-white text-sm font-semibold ${getStatusColor(task.status)}`}>
-          {task.status.replace('_', ' ')}
+        
+        {task.assignedTo && (
+          <div className="flex items-center mb-3">
+            <Users className="w-4 h-4 mr-2 text-gray-500" />
+            <span className="text-sm text-gray-700">{task.assignedTo}</span>
+          </div>
+        )}
+        
+        {task.notes && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+            <p className="text-sm text-gray-700">{task.notes}</p>
+          </div>
+        )}
+        
+        <div className="flex space-x-3">
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={handleTaskStatusToggle}
+            className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold flex items-center justify-center"
+          >
+            {task.status === 'in_progress' ? (
+              <>
+                <PauseCircle className="w-5 h-5 mr-2" />
+                Pause
+              </>
+            ) : (
+              <>
+                <PlayCircle className="w-5 h-5 mr-2" />
+                Start
+              </>
+            )}
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            className="bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold flex items-center justify-center"
+          >
+            <Camera className="w-5 h-5" />
+          </motion.button>
         </div>
-      </div>
-      
-      {task.assignedTo && (
-        <div className="flex items-center mb-3">
-          <Users className="w-4 h-4 mr-2 text-gray-500" />
-          <span className="text-sm text-gray-700">{task.assignedTo}</span>
-        </div>
-      )}
-      
-      {task.notes && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
-          <p className="text-sm text-gray-700">{task.notes}</p>
-        </div>
-      )}
-      
-      <div className="flex space-x-3">
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold flex items-center justify-center"
-        >
-          {task.status === 'in_progress' ? (
-            <>
-              <PauseCircle className="w-5 h-5 mr-2" />
-              Pause
-            </>
-          ) : (
-            <>
-              <PlayCircle className="w-5 h-5 mr-2" />
-              Start
-            </>
-          )}
-        </motion.button>
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          className="bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold flex items-center justify-center"
-        >
-          <Camera className="w-5 h-5" />
-        </motion.button>
-      </div>
-    </motion.div>
-  )
+      </motion.div>
+    )
+  }
 
-  const CrewCard: React.FC<{ member: Crew }> = ({ member }) => (
+  const CrewCard: React.FC<{ member: typeof crew[0] }> = ({ member }) => (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
@@ -332,7 +235,7 @@ const JobSiteDashboard: React.FC = () => {
     </motion.div>
   )
 
-  const IssueCard: React.FC<{ issue: Issue }> = ({ issue }) => (
+  const IssueCard: React.FC<{ issue: typeof issues[0] }> = ({ issue }) => (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
