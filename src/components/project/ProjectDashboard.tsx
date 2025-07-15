@@ -22,10 +22,8 @@ import { useProjectStore } from '@/stores/project-store'
 import { useAppStore } from '@/stores/app-store'
 import { ProjectCard } from './ProjectCard'
 import { ProjectKanban } from './ProjectKanban'
-import { ProjectTimeline } from './ProjectTimeline'
 import { ProjectMetrics } from './ProjectMetrics'
 import { ProjectFilters } from './ProjectFilters'
-import { CreateProjectModal } from './CreateProjectModal'
 import { cn } from '@/lib/utils'
 
 export const ProjectDashboard: React.FC = () => {
@@ -309,7 +307,10 @@ export const ProjectDashboard: React.FC = () => {
         )}
 
         {viewMode === 'timeline' && (
-          <ProjectTimeline projects={filteredProjects} />
+          <div className="text-center py-12">
+            <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600">Timeline view coming soon</p>
+          </div>
         )}
       </div>
 
@@ -342,7 +343,6 @@ export const ProjectDashboard: React.FC = () => {
       )}
 
       {/* Modals */}
-      <CreateProjectModal />
     </div>
   )
 }

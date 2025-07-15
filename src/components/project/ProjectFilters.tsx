@@ -7,7 +7,8 @@ import {
   Calendar, 
   Filter,
   Users,
-  Building2
+  Building2,
+  AlertTriangle
 } from 'lucide-react'
 import { useProjectStore } from '@/stores/project-store'
 import type { ProjectStatus, Priority } from '@/types'

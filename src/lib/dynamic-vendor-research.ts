@@ -829,4 +829,3 @@ class MockMCPClient implements MCPClient {
   }
 }
 
-export { DynamicVendorResearchService }

@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
         trade: body.trade,
         searchQuery: body.query || `${body.trade} vendors in ${body.location}`,
         location: body.location,
-        projectId: body.projectId,
+        projectId: (body as any).projectId,
         researchData: {
           originalRequest: body,
           timestamp: new Date().toISOString(),

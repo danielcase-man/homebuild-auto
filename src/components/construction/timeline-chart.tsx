@@ -480,4 +480,4 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
   )
 }
 
-export { TimelineChart, type TimelineTask }
+export { TimelineChart }

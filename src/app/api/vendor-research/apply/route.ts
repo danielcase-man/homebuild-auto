@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const vendorsToCreate = selectedVendors.map((vendorData: VendorDiscoveryResult) => ({
       companyId,
       name: vendorData.name,
-      type: this.mapTradeToSupplierType(research.trade),
+      type: mapTradeToSupplierType(research.trade),
       email: vendorData.contact.email,
       phone: vendorData.contact.phone,
       website: vendorData.contact.website,
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       created: createdVendors.length,
-      vendors: createdVendors.map(v => ({
+      vendors: createdVendors.map((v: any) => ({
         id: v.id,
         name: v.name,
         type: v.type,

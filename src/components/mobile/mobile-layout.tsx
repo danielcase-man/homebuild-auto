@@ -554,4 +554,4 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   )
 }
 
-export { MobileLayout, type MobileNavItem }
+export { MobileLayout }

@@ -46,7 +46,9 @@ export const ComplianceDashboard: React.FC<ComplianceDashboardProps> = ({ projec
     try {
       // First detect jurisdiction from project address
       const projectAddress = currentProject?.address || ''
-      const jurisdiction = await municipalCompliance.detectJurisdiction(projectAddress)
+      const jurisdiction = await municipalCompliance.detectJurisdiction(
+        typeof projectAddress === 'string' ? projectAddress : JSON.stringify(projectAddress)
+      )
       
       // Then get jurisdiction-specific compliance
       const data = await municipalCompliance.getJurisdictionCompliance(selectedProjectId, jurisdiction)
@@ -386,7 +388,9 @@ const ContactsTab: React.FC = () => {
       
       setIsLoading(true)
       try {
-        const jurisdiction = await municipalCompliance.detectJurisdiction(currentProject.address)
+        const jurisdiction = await municipalCompliance.detectJurisdiction(
+          typeof currentProject.address === 'string' ? currentProject.address : JSON.stringify(currentProject.address)
+        )
         const jurisdictionContacts = await municipalCompliance.getJurisdictionContacts(jurisdiction)
         setContacts(jurisdictionContacts)
       } catch (error) {

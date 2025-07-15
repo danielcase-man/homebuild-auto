@@ -4,10 +4,10 @@ import { analyticsService, type ProjectAnalytics } from '@/lib/analytics-service
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
-    const { projectId } = params
+    const { projectId } = await params
     
     // Get project data with all related information
     const project = await prisma.project.findUnique({

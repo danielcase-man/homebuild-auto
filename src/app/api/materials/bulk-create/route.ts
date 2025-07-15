@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import type { MaterialDiscoveryResult } from '@/lib/perplexity-mcp-service'
 
+
 export async function POST(request: NextRequest) {
   try {
     const { materials } = await request.json()
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
       model: materialData.model,
       basePrice: materialData.pricing.basePrice,
       unit: materialData.pricing.unit,
-      leadTime: this.parseLeadTime(materialData.availability.leadTime),
+      leadTime: parseLeadTime(materialData.availability.leadTime),
       researchData: materialData,
       lastResearched: new Date(),
       popularityScore: materialData.confidence,
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
             supplierId: supplier.id,
             price: originalData.pricing.basePrice || 0,
             availability: originalData.availability.inStock ? 'IN_STOCK' : 'SPECIAL_ORDER',
-            leadTime: this.parseLeadTime(originalData.availability.leadTime),
+            leadTime: parseLeadTime(originalData.availability.leadTime),
             isPreferred: false
           })
         }
@@ -109,7 +110,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       created: createdMaterials.length,
       vendorRelationships: vendorRelationships.length,
-      materials: createdMaterials.map(m => ({
+      materials: createdMaterials.map((m: any) => ({
         id: m.id,
         name: m.name,
         category: m.category,

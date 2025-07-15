@@ -166,7 +166,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isSelected })
       className={cn(
         "bg-white border rounded-lg shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer",
         isSelected ? "border-construction-blue bg-blue-50" : "border-gray-200",
-        isOverdue && "border-red-300 bg-red-50"
+        isOverdue() && "border-red-300 bg-red-50"
       )}
       onClick={handleCardClick}
     >
@@ -313,16 +313,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isSelected })
             <div className="text-right">
               <div className={cn(
                 "text-sm font-medium",
-                isOverdue ? "text-red-600" : isUpcoming ? "text-orange-600" : "text-gray-900"
+                isOverdue() ? "text-red-600" : isUpcoming() ? "text-orange-600" : "text-gray-900"
               )}>
                 {formatDate(project.estimatedEndDate)}
               </div>
               {getDaysUntilDeadline() !== null && (
                 <div className={cn(
                   "text-xs",
-                  isOverdue ? "text-red-500" : isUpcoming ? "text-orange-500" : "text-gray-500"
+                  isOverdue() ? "text-red-500" : isUpcoming() ? "text-orange-500" : "text-gray-500"
                 )}>
-                  {isOverdue 
+                  {isOverdue() 
                     ? `${Math.abs(getDaysUntilDeadline()!)} days overdue`
                     : `${getDaysUntilDeadline()} days left`
                   }
@@ -370,16 +370,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isSelected })
       </div>
 
       {/* Footer Alerts */}
-      {(isOverdue || isUpcoming) && (
+      {(isOverdue() || isUpcoming()) && (
         <div className={cn(
           "px-4 py-2 border-t text-xs font-medium",
-          isOverdue 
+          isOverdue() 
             ? "bg-red-50 border-red-100 text-red-700"
             : "bg-orange-50 border-orange-100 text-orange-700"
         )}>
           <div className="flex items-center">
             <AlertTriangle className="h-3 w-3 mr-1" />
-            {isOverdue ? 'Project is overdue' : 'Deadline approaching'}
+            {isOverdue() ? 'Project is overdue' : 'Deadline approaching'}
           </div>
         </div>
       )}
