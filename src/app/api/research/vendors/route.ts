@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getPerplexityMCPClient } from '@/lib/mcp/perplexity-client'
 
 export async function POST(request: NextRequest) {
   try {
     const { location, services, projectType } = await request.json()
     
-    const prompt = `Research contractors and vendors for construction project in ${location}:
+    const query = `Research contractors and vendors for construction project in ${location}:
 
 PROJECT DETAILS:
 - Location: ${location}
@@ -39,27 +40,11 @@ For each contractor/vendor, provide:
 
 Focus on local contractors with good reputations and proper licensing.`
 
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'llama-3.1-sonar-small-128k-online',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.1,
-        max_tokens: 2000
-      })
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`Perplexity API error: ${response.status} - ${errorText}`)
-    }
-
-    const data = await response.json()
-    const researchResult = data.choices[0].message.content
+    const mcpClient = getPerplexityMCPClient()
+    const mcpResult = await mcpClient.searchVendors(query)
+    
+    // Extract the content from MCP response
+    const researchResult = mcpResult.content?.[0]?.text || mcpResult.toString()
 
     const vendors = parseVendorResponse(researchResult)
 

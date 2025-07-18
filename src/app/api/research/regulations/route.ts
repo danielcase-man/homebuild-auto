@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getPerplexityMCPClient } from '@/lib/mcp/perplexity-client'
 
 export async function POST(request: NextRequest) {
   try {
     const { location, projectType } = await request.json()
     
-    const prompt = `Research building codes and permit requirements for construction in ${location}:
+    const query = `Research building codes and permit requirements for construction in ${location}:
 
 PROJECT DETAILS:
 - Location: ${location}
@@ -25,26 +26,11 @@ Provide comprehensive information about:
 
 Focus on specific, actionable information that would be needed for permit applications.`
 
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'llama-3.1-sonar-huge-128k-online',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.1,
-        max_tokens: 2000
-      })
-    })
-
-    if (!response.ok) {
-      throw new Error(`Perplexity API error: ${response.status}`)
-    }
-
-    const data = await response.json()
-    const researchResult = data.choices[0].message.content
+    const mcpClient = getPerplexityMCPClient()
+    const mcpResult = await mcpClient.searchRegulations(query)
+    
+    // Extract the content from MCP response
+    const researchResult = mcpResult.content?.[0]?.text || mcpResult.toString()
 
     const regulations = parseRegulationResponse(researchResult)
 

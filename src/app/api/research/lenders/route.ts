@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getPerplexityMCPClient } from '@/lib/mcp/perplexity-client'
 
 export async function POST(request: NextRequest) {
   try {
     const projectData = await request.json()
     
-    const prompt = `Research construction lenders for this project:
+    const query = `Research construction lenders for this project:
 
 PROJECT DETAILS:
 - Location: ${projectData.location}
@@ -25,32 +26,11 @@ Find 5-10 construction lenders that would be suitable for this project. For each
 
 Format the response as a structured list with clear sections for each lender.`
 
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'llama-3.1-sonar-small-128k-online',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.1,
-        max_tokens: 2000
-      })
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`Perplexity API error: ${response.status} - ${errorText}`)
-    }
-
-    const data = await response.json()
-    const researchResult = data.choices[0].message.content
+    const mcpClient = getPerplexityMCPClient()
+    const mcpResult = await mcpClient.searchLenders(query)
+    
+    // Extract the content from MCP response
+    const researchResult = mcpResult.content?.[0]?.text || mcpResult.toString()
 
     // Simple parsing to extract structured data
     const lenders = parseLenderResponse(researchResult)
