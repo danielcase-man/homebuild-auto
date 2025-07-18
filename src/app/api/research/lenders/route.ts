@@ -32,7 +32,7 @@ Format the response as a structured list with clear sections for each lender.`
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.1-sonar-huge-128k-online',
+        model: 'llama-3.1-sonar-small-128k-online',
         messages: [
           {
             role: 'user',
@@ -45,7 +45,8 @@ Format the response as a structured list with clear sections for each lender.`
     })
 
     if (!response.ok) {
-      throw new Error(`Perplexity API error: ${response.status}`)
+      const errorText = await response.text()
+      throw new Error(`Perplexity API error: ${response.status} - ${errorText}`)
     }
 
     const data = await response.json()

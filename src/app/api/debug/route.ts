@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-huge-128k-online',
+          model: 'llama-3.1-sonar-small-128k-online',
           messages: [{ role: 'user', content: 'Test message: What is 2+2?' }],
           temperature: 0.1,
           max_tokens: 100
