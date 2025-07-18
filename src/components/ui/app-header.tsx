@@ -22,6 +22,7 @@ const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
     const defaultNavigation = [
       { label: "Dashboard", href: "/dashboard", active: false },
       { label: "Scheduling", href: "/scheduling", active: false },
+      { label: "Research", href: "/research", active: false },
       { label: "Mobile", href: "/mobile", active: false },
       { label: "Components", href: "/components", active: false },
       { label: "Design", href: "/design-dashboard", active: false },
