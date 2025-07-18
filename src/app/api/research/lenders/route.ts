@@ -69,7 +69,10 @@ Format the response as a structured list with clear sections for each lender.`
       { 
         success: false, 
         error: 'Failed to research lenders',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        hasApiKey: !!process.env.PERPLEXITY_API_KEY,
+        timestamp: new Date().toISOString()
       },
       { status: 500 }
     )

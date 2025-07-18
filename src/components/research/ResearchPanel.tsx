@@ -67,9 +67,13 @@ export function ResearchPanel() {
           loading: false 
         }))
       } else {
+        const errorMessage = result.error || 'Research failed'
+        const errorDetails = result.details ? ` - ${result.details}` : ''
+        const hasApiKey = result.hasApiKey !== undefined ? ` (API Key: ${result.hasApiKey ? 'Present' : 'Missing'})` : ''
+        
         setResearch(prev => ({ 
           ...prev, 
-          error: result.error || 'Research failed',
+          error: errorMessage + errorDetails + hasApiKey,
           loading: false 
         }))
       }
